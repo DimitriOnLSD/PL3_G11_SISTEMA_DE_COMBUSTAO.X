@@ -5,7 +5,7 @@
 *.o
 *.ko
 *.obj
-#*.elf
+*.elf
 
 # Linker output
 *.ilk
@@ -83,25 +83,9 @@ ExportedObj/
 *.opendb
 *.VC.db
 
-# Unity3D generated meta files
-*.pidb.meta
-*.pdb.meta
-*.mdb.meta
-
-# Unity3D generated file on crash reports
-sysinfo.txt
-
 # Builds
 *.unitypackage
 *.emSession
-
-# Crashlytics generated file
-crashlytics-build.properties
-
-# update 14-07-2022
-# Removed *.apk, *.svd, *.sln and [Ll]ibrary/ for RTLS files
-
-# mplab and proteus files generated
 *.workspace
 *.cmf
 *.hxl
