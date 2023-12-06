@@ -101,8 +101,17 @@ crashlytics-build.properties
 # update 14-07-2022
 # Removed *.apk, *.svd, *.sln and [Ll]ibrary/ for RTLS files
 
-# workspace
+# mplab and proteus files generated
 *.workspace
-
-
+*.cmf
+*.hxl
+*.lst
+*.map
+*.mum
+*.o
+*.rlf
+*.sdb
+*.sym
+*.properties
+\nbproject\private\private.xml
 
