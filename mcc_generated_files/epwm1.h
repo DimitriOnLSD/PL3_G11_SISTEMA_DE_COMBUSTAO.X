@@ -1,23 +1,23 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs Header File
+  EPWM1 Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.h
+  @File Name
+    epwm1.h
 
-  @Summary:
-    This is the mcc.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated driver implementation file for the EPWM1 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This header file provides implementations for driver APIs for EPWM1.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
         Device            :  PIC18F45K22
-        Driver Version    :  2.00
+        Driver Version    :  2.01
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.10 and above or later
+        Compiler          :  XC8 2.10 and above
         MPLAB             :  MPLAB X 5.30
 */
 
@@ -44,51 +44,90 @@
     SOFTWARE.
 */
 
-#ifndef MCC_H
-#define	MCC_H
+#ifndef EPWM1_H
+#define EPWM1_H
+
+/**
+  Section: Included Files
+*/
+
 #include <xc.h>
-#include "device_config.h"
-#include "pin_manager.h"
 #include <stdint.h>
-#include <stdbool.h>
-#include <conio.h>
-#include "interrupt_manager.h"
-#include "epwm1.h"
-#include "tmr1.h"
-#include "ext_int.h"
-#include "tmr2.h"
-#include "tmr0.h"
-#include "adc.h"
 
+#ifdef __cplusplus  // Provide C++ Compatibility
 
+    extern "C" {
+
+#endif
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the device to the default states configured in the
- *                  MCC GUI
- * @Example
-    SYSTEM_Initialize(void);
- */
-void SYSTEM_Initialize(void);
+  Section: EPWM Module APIs
+*/
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the oscillator to the default states configured in the
- *                  MCC GUI
- * @Example
-    OSCILLATOR_Initialize(void);
- */
-void OSCILLATOR_Initialize(void);
+  @Summary
+    Initializes the EPWM1
 
-#endif	/* MCC_H */
+  @Description
+    This routine initializes the EPWM1 module.
+    This routine must be called before any other EPWM1 routine is called.
+    This routine should only be called once during system initialization.
+
+  @Preconditions
+    None
+
+  @Param
+    None
+
+  @Returns
+    None
+
+  @Comment
+    
+
+ @Example
+    <code>
+    uint16_t dutycycle;
+
+    ECCP1_Initialize();
+	EPWM1_LoadDutyValue(dutycycle);
+    </code>
+ */
+void EPWM1_Initialize(void);
+
+/**
+  @Summary
+    Loads 16-bit duty cycle.
+
+  @Description
+    This routine loads the 16 bit duty cycle value.
+
+  @Preconditions
+    EPWM1_Initialize() function should have been called before calling this function.
+
+  @Param
+    Pass 16bit duty cycle value.
+
+  @Returns
+    None
+
+  @Example
+    <code>
+    uint16_t dutycycle;
+
+    EPWM1_Initialize();
+    EPWM1_LoadDutyValue(dutycycle);
+    </code>
+*/
+void EPWM1_LoadDutyValue(uint16_t dutyValue);
+        
+#ifdef __cplusplus  // Provide C++ Compatibility
+
+    }
+
+#endif
+
+#endif	//EPWM1_H
 /**
  End of File
 */
