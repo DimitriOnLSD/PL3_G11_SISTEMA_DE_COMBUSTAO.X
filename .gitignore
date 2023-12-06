@@ -99,5 +99,5 @@ ExportedObj/
 *.properties
 *.mk
 *.bash
-\nbproject\private\private.xml
 \build
+nbproject/private/private.xml
