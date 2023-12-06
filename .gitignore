@@ -97,5 +97,7 @@ ExportedObj/
 *.sdb
 *.sym
 *.properties
+*.mk
+*.bash
 \nbproject\private\private.xml
-
+\build
