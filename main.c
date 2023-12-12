@@ -1,13 +1,21 @@
 #include "mcc_generated_files/mcc.h"
+#include <string.h>
 
 volatile adc_result_t adc_result;
 volatile bool update = false; // adc update flag
+bool newData = true;
+bool show_main_menu = true;
 volatile uint64_t time = 0;
+
+char valve_control[] = "";
 
 bool alarm_disabled = false; // disable the alarm
 bool user_override = false; // user can change valve opening manually if true
 
-uint8_t pressure;
+uint8_t rxData;
+uint8_t option;
+uint8_t valve;
+float pressure;
 uint8_t min_pressure_threshold = 10;
 uint8_t max_pressure_threshold = 150;
 
@@ -18,6 +26,9 @@ uint8_t max_pressure_threshold = 150;
 // b=y2-m*x1 = 0 - 54.263105 * 0.263658 = -14.306901702602588740796434783779 ~= -14.306917
 const static float m = 54.263105;
 const static float b = -14.306917;
+
+unsigned char cnt_char = 0;
+unsigned char s[4];
 
 /*
                          Main application
@@ -55,42 +66,49 @@ void timer0_state(bool state) {
     else
         INTCONbits.TMR0IE = 0;
 }
+
 void timer1_state(bool state) {
     if (state)
         PIE1bits.TMR1IE = 1;
     else
         PIE1bits.TMR1IE = 0;
 }
+
 void timer2_state(bool state) {
     if (state)
         PIE1bits.TMR2IE = 1;
     else
         PIE1bits.TMR2IE = 0;
 }
+
 void timer3_state(bool state) {
     if (state)
         PIE2bits.TMR3IE = 1;
     else
         PIE2bits.TMR3IE = 0;
 }
+
 void ccp1_state(bool state) {
     if (state)
         PIE1bits.CCP1IE = 1;
     else
         PIE1bits.CCP1IE = 0;
 }
+
 void ccp2_state(bool state) {
     if (state)
         PIE2bits.CCP2IE = 1;
     else
         PIE2bits.CCP2IE = 0;
-} 
+}
+
 void ccp3_state(bool state) {
     if (state)
         PIE4bits.CCP3IE = 1;
     else
         PIE4bits.CCP3IE = 0;
-} 
+}
+
 void led_state(bool state) {
     if (state)
         LATAbits.LATA5 = 1;
@@ -104,6 +122,7 @@ void turnOffAlarm() {
     timer0_state(false);
     timer2_state(false);
 }
+
 void activateAlarm() {
     ccp1_state(true);
     timer0_state(true);
@@ -113,14 +132,30 @@ void activateAlarm() {
 bool pressureOutsideThreshold() {
     return (pressure <= min_pressure_threshold || pressure >= max_pressure_threshold);
 }
+
 void updatePressureFromADC() {
     if (update) {
         const float maxADCValue = 1023.0;
         const float maxVoltage = 5.0;
 
-        float adcVoltage = (float)adc_result * maxVoltage / maxADCValue;
+        float adcVoltage = (float) adc_result * maxVoltage / maxADCValue;
         pressure = m * adcVoltage + b;
     }
+}
+
+void changeString(bool user_override) {
+    if (user_override)
+        valve_control[6] = "Manual";
+    else
+        valve_control[10] = "Automatico";
+}
+
+void main_menu() {
+    EUSART1_Write(12);
+    printf("\r\n[1] - Controlo da pressao - Modo: %s", valve_control);
+    printf("\r\n[2] - Definicao do grau de abertura da valvula");
+    printf("\r\n[3] - Definicao dos limiares de alarme para a pressao (MIN/MAX)");
+    printf("\r\nValor de pressao: %f \tAbertura da valvula: %d", pressure, valve);
 }
 
 void main(void) {
@@ -166,6 +201,63 @@ void main(void) {
             }
         } else {
             // control valve through user input. Will be fixed value
+        }
+
+        if (EUSART1_is_rx_ready()) {
+            rxData = EUSART1_Read();
+            EUSART1_Write(rxData);
+            if ((rxData >= '0' && rxData <= '9') || rxData == 13) // if [0:9] or ENTER
+            {
+                newData = true;
+                option = rxData;
+            }
+        }
+
+        main_menu();
+
+        if (newData) {
+            switch (option) {
+                case 0:
+                    break;
+                case 1:
+                    user_override = !user_override;
+                    changeString(user_override);
+                    break;
+                case 2:
+                    if (user_override) {
+                        printf("\r\n Controlo da pressao tem de ser manual para definir um grau de abertura da valvula");
+                    } else {
+                        // control valve through user input. Will be fixed value
+                    }
+                    show_main_menu = false;
+                    break;
+                case 3:
+                    printf("\r\nValor minimo atual: %d\t Valor maximo atual: %d", min_pressure_threshold, max_pressure_threshold);
+                    printf("\r\nNovo valor minimo: ");
+                    s[cnt_char] = rxData;
+                    if (cnt_char == 2 || rxData == 13) {
+                        if (cnt_char == 2)
+                            cnt_char++;
+                        s[cnt_char] = '\0';
+                        min_pressure_threshold = atoi(s);
+                    } else {
+                        cnt_char++;
+                    }
+                    printf("\r\nNovo valor maximo: ");
+                    s[cnt_char] = rxData;
+                    if (cnt_char == 2 || rxData == 13) {
+                        if (cnt_char == 2)
+                            cnt_char++;
+                        s[cnt_char] = '\0';
+                        max_pressure_threshold = atoi(s);
+                    } else {
+                        cnt_char++;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            newData = false;
         }
     }
 }

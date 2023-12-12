@@ -47,7 +47,7 @@
 // Configuration bits: selected in the GUI
 
 // CONFIG1H
-#pragma config FOSC = ECMP    // Oscillator Selection bits->EC oscillator, CLKOUT function on OSC2 (medium power, 500 kHz-16 MHz)
+#pragma config FOSC = RCIO6    // Oscillator Selection bits->External RC oscillator
 #pragma config PLLCFG = OFF    // 4X PLL Enable->Oscillator used directly
 #pragma config PRICLKEN = ON    // Primary clock enable bit->Primary clock is always enabled
 #pragma config FCMEN = OFF    // Fail-Safe Clock Monitor Enable bit->Fail-Safe Clock Monitor disabled
