@@ -36,7 +36,7 @@ unsigned char s[4];
 
 void interrupt_handler(void) {
     alarm_disabled = !alarm_disabled;
-    INTCONbits.INT0IF = 0;
+    EXT_INT0_InterruptFlagClear();
 }
 
 void timer0_interrupt_handler(void) {
@@ -47,12 +47,6 @@ void timer0_interrupt_handler(void) {
 void timer1_interrupt_handler(void) {
     ADC_StartConversion();
     PIR1bits.TMR1IF = 0;
-}
-
-void timer2_interrupt_handler(void) {
-    EPWM1_LoadDutyValue(100);
-    PIR1bits.CCP1IF = 0;
-    PIR1bits.TMR2IF = 0;
 }
 
 void adc_interrupt_handler(void) {
@@ -79,13 +73,6 @@ void timer2_state(bool state) {
         PIE1bits.TMR2IE = 1;
     else
         PIE1bits.TMR2IE = 0;
-}
-
-void timer3_state(bool state) {
-    if (state)
-        PIE2bits.TMR3IE = 1;
-    else
-        PIE2bits.TMR3IE = 0;
 }
 
 void ccp1_state(bool state) {
@@ -120,13 +107,17 @@ void turnOffAlarm() {
     led_state(false);
     ccp1_state(false);
     timer0_state(false);
-    timer2_state(false);
+    // timer2_state(false);
+    TMR2_StopTimer();
+    CCPR1L = 0;
 }
 
 void activateAlarm() {
     ccp1_state(true);
     timer0_state(true);
-    timer2_state(true);
+    // timer2_state(true);
+    TMR2_StartTimer();
+    CCPR1L = 50;
 }
 
 bool pressureOutsideThreshold() {
@@ -162,10 +153,21 @@ void main(void) {
     SYSTEM_Initialize();
     ADC_SelectChannel(MPX4250);
 
+    // EXT_INT0_InterruptDisable();
+    // EXT_INT0_InterruptFlagClear()
+
+    // TMR0_StartTimer();
+    // TMR0_StopTimer():
+
+    // TMR1_StartTimer();
+    // TMR1_StopTimer();
+
+    // TMR2_StartTimer();
+    // TMR2_StopTimer();
+
     INT0_SetInterruptHandler(interrupt_handler); // Disable alarm
     TMR0_SetInterruptHandler(timer0_interrupt_handler);
     TMR1_SetInterruptHandler(timer1_interrupt_handler); // ADC update 1ms
-    TMR2_SetInterruptHandler(timer2_interrupt_handler);
     ADC_SetInterruptHandler(adc_interrupt_handler);
 
     INTERRUPT_GlobalInterruptHighEnable();
