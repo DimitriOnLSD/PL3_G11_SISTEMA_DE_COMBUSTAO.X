@@ -1,18 +1,20 @@
 #include "mcc_generated_files/mcc.h"
 #include <string.h>
 
+#define VALVE_CONTROL_LENGTH 20
+
 volatile adc_result_t adc_result;
 volatile bool update = false; // adc update flag
-bool newData = true;
+bool new_data = false;
 bool show_main_menu = true;
 volatile uint64_t time = 0;
 
-char valve_control[] = "";
+char valve_control[VALVE_CONTROL_LENGTH] = "";
 
 bool alarm_disabled = false; // disable the alarm
 bool user_override = false; // user can change valve opening manually if true
 
-uint8_t rxData;
+uint8_t rx_data;
 uint8_t option;
 uint8_t valve;
 float pressure;
@@ -134,19 +136,27 @@ void updatePressureFromADC() {
     }
 }
 
-void changeString(bool user_override) {
-    if (user_override)
-        valve_control[6] = "Manual";
-    else
-        valve_control[10] = "Automatico";
-}
-
 void main_menu() {
     EUSART1_Write(12);
-    printf("\r\n[1] - Controlo da pressao - Modo: %s", valve_control);
+    if (user_override)
+        printf("\r\n[1] - Controlo da pressao - Modo: Manual");
+    else
+        printf("\r\n[1] - Controlo da pressao - Modo: Automatico");
     printf("\r\n[2] - Definicao do grau de abertura da valvula");
     printf("\r\n[3] - Definicao dos limiares de alarme para a pressao (MIN/MAX)");
-    printf("\r\nValor de pressao: %f \tAbertura da valvula: %d", pressure, valve);
+    printf("\r\n");
+    printf("\r\nValor de pressao: %.2f kPa \r\nAbertura da valvula: %d", pressure, valve);
+    printf("\r\nOpcao: ");
+}
+
+void menu_valve_control() {
+    EUSART1_Write(12);
+    printf("\r\n[1] - 0");
+    printf("\r\n[2] - 25");
+    printf("\r\n[3] - 50");
+    printf("\r\n[4] - 75");
+    printf("\r\n[5] - 100");
+    printf("\r\n[0] - Sair (Controlo da pressao -> Automatico)");
 }
 
 void main(void) {
@@ -189,77 +199,83 @@ void main(void) {
                 turnOffAlarm();
         }
 
-        if (!user_override) {
-            if (pressure < 30) {
-                // 0% valve open
-            } else if (pressure >= 30 && pressure < 60) {
-                // 25% valve open
-            } else if (pressure >= 60 && pressure < 90) {
-                // 50% valve open
-            } else if (pressure >= 90 && pressure < 120) {
-                // 75% valve open
-            } else {
-                // 100% valve open
-            }
-        } else {
-            // control valve through user input. Will be fixed value
-        }
+        // if (user_override) {
+        //     // control valve through user input. Will be fixed value
+        // } else {
+        //     if (pressure < 30) {
+        //         // 0% valve open
+        //     } else if (pressure >= 30 && pressure < 60) {
+        //         // 25% valve open
+        //     } else if (pressure >= 60 && pressure < 90) {
+        //         // 50% valve open
+        //     } else if (pressure >= 90 && pressure < 120) {
+        //         // 75% valve open
+        //     } else {
+        //         // 100% valve open
+        //     }
+        // }
 
         if (EUSART1_is_rx_ready()) {
-            rxData = EUSART1_Read();
-            EUSART1_Write(rxData);
-            if ((rxData >= '0' && rxData <= '9') || rxData == 13) // if [0:9] or ENTER
+            rx_data = EUSART1_Read();
+            EUSART1_Write(rx_data);
+            if ((rx_data >= '0' && rx_data <= '9') || rx_data == 13) // if [0:9] or ENTER
             {
-                newData = true;
-                option = rxData;
+                new_data = true;
+                option = rx_data;
             }
         }
 
-        main_menu();
+        if (show_main_menu) {
+            main_menu();
+            show_main_menu = false;
+        }
 
-        if (newData) {
+        if (new_data) {
             switch (option) {
                 case 0:
                     break;
-                case 1:
+                case '1':
                     user_override = !user_override;
-                    changeString(user_override);
+                    show_main_menu = true;
                     break;
-                case 2:
-                    if (user_override) {
+                case '2':
+                    if (!user_override) {
+                        EUSART1_Write(12);
                         printf("\r\n Controlo da pressao tem de ser manual para definir um grau de abertura da valvula");
                     } else {
-                        // control valve through user input. Will be fixed value
+                        menu_valve_control();
                     }
                     show_main_menu = false;
                     break;
-                case 3:
-                    printf("\r\nValor minimo atual: %d\t Valor maximo atual: %d", min_pressure_threshold, max_pressure_threshold);
-                    printf("\r\nNovo valor minimo: ");
-                    s[cnt_char] = rxData;
-                    if (cnt_char == 2 || rxData == 13) {
-                        if (cnt_char == 2)
-                            cnt_char++;
-                        s[cnt_char] = '\0';
-                        min_pressure_threshold = atoi(s);
-                    } else {
-                        cnt_char++;
-                    }
-                    printf("\r\nNovo valor maximo: ");
-                    s[cnt_char] = rxData;
-                    if (cnt_char == 2 || rxData == 13) {
-                        if (cnt_char == 2)
-                            cnt_char++;
-                        s[cnt_char] = '\0';
-                        max_pressure_threshold = atoi(s);
-                    } else {
-                        cnt_char++;
-                    }
-                    break;
+                case '3':
+                    // EUSART1_Write(12);
+                    // printf("\r\nValor minimo atual: %d\t Valor maximo atual: %d", min_pressure_threshold, max_pressure_threshold);
+                    // printf("\r\nNovo valor minimo: ");
+                    // s[cnt_char] = rx_data;
+                    // if (cnt_char == 2 || rx_data == 13) {
+                    //     if (cnt_char == 2)
+                    //         cnt_char++;
+                    //     s[cnt_char] = '\0';
+                    //     min_pressure_threshold = atoi(s);
+                    // } else {
+                    //     cnt_char++;
+                    // }
+                    // EUSART1_Write(12);
+                    // printf("\r\nNovo valor maximo: ");
+                    // s[cnt_char] = rx_data;
+                    // if (cnt_char == 2 || rx_data == 13) {
+                    //     if (cnt_char == 2)
+                    //         cnt_char++;
+                    //     s[cnt_char] = '\0';
+                    //     max_pressure_threshold = atoi(s);
+                    // } else {
+                    //     cnt_char++;
+                    // }
+                    // break;
                 default:
                     break;
             }
-            newData = false;
+            new_data = false;
         }
     }
 }
