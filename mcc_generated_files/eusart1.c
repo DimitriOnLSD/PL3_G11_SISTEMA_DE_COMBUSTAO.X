@@ -173,10 +173,10 @@ void EUSART1_Write(uint8_t txData)
 //     return EUSART1_Read();
 // }
 
-// void putch(char txData)
-// {
-//     EUSART1_Write(txData);
-// }
+void putch(char txData)
+{
+    EUSART1_Write(txData);
+}
 
 
 void EUSART1_Receive_ISR(void)
