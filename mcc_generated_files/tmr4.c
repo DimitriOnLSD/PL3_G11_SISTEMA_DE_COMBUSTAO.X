@@ -1,17 +1,17 @@
 /**
-  TMR2 Generated Driver File
+  TMR4 Generated Driver File
 
   @Company
     Microchip Technology Inc.
 
   @File Name
-    tmr2.c
+    tmr4.c
 
   @Summary
-    This is the generated driver implementation file for the TMR2 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+    This is the generated driver implementation file for the TMR4 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
   @Description
-    This source file provides APIs for TMR2.
+    This source file provides APIs for TMR4.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
         Device            :  PIC18F45K22
@@ -49,93 +49,93 @@
 */
 
 #include <xc.h>
-#include "tmr2.h"
+#include "tmr4.h"
 
 /**
   Section: Global Variables Definitions
 */
 
-void (*TMR2_InterruptHandler)(void);
+void (*TMR4_InterruptHandler)(void);
 
 /**
-  Section: TMR2 APIs
+  Section: TMR4 APIs
 */
 
-void TMR2_Initialize(void)
+void TMR4_Initialize(void)
 {
-    // Set TMR2 to the options selected in the User Interface
+    // Set TMR4 to the options selected in the User Interface
 
-    // PR2 249; 
-    PR2 = 0xF9;
+    // PR4 124; 
+    PR4 = 0x7C;
 
-    // TMR2 0; 
-    TMR2 = 0x00;
+    // TMR4 0; 
+    TMR4 = 0x00;
 
     // Clearing IF flag before enabling the interrupt.
-    PIR1bits.TMR2IF = 0;
+    PIR5bits.TMR4IF = 0;
 
-    // Enabling TMR2 interrupt.
-    PIE1bits.TMR2IE = 1;
+    // Enabling TMR4 interrupt.
+    PIE5bits.TMR4IE = 1;
 
     // Set Default Interrupt Handler
-    TMR2_SetInterruptHandler(TMR2_DefaultInterruptHandler);
+    TMR4_SetInterruptHandler(TMR4_DefaultInterruptHandler);
 
-    // T2CKPS 1:4; T2OUTPS 1:2; TMR2ON on; 
-    T2CON = 0x0D;
+    // T4CKPS 1:4; T4OUTPS 1:4; TMR4ON on; 
+    T4CON = 0x1D;
 }
 
-void TMR2_StartTimer(void)
+void TMR4_StartTimer(void)
 {
     // Start the Timer by writing to TMRxON bit
-    T2CONbits.TMR2ON = 1;
+    T4CONbits.TMR4ON = 1;
 }
 
-void TMR2_StopTimer(void)
+void TMR4_StopTimer(void)
 {
     // Stop the Timer by writing to TMRxON bit
-    T2CONbits.TMR2ON = 0;
+    T4CONbits.TMR4ON = 0;
 }
 
-uint8_t TMR2_ReadTimer(void)
+uint8_t TMR4_ReadTimer(void)
 {
     uint8_t readVal;
 
-    readVal = TMR2;
+    readVal = TMR4;
 
     return readVal;
 }
 
-void TMR2_WriteTimer(uint8_t timerVal)
+void TMR4_WriteTimer(uint8_t timerVal)
 {
-    // Write to the Timer2 register
-    TMR2 = timerVal;
+    // Write to the Timer4 register
+    TMR4 = timerVal;
 }
 
-void TMR2_LoadPeriodRegister(uint8_t periodVal)
+void TMR4_LoadPeriodRegister(uint8_t periodVal)
 {
-   PR2 = periodVal;
+   PR4 = periodVal;
 }
 
-void TMR2_ISR(void)
+void TMR4_ISR(void)
 {
 
-    // clear the TMR2 interrupt flag
-    PIR1bits.TMR2IF = 0;
+    // clear the TMR4 interrupt flag
+    PIR5bits.TMR4IF = 0;
 
-    if(TMR2_InterruptHandler)
+    if(TMR4_InterruptHandler)
     {
-        TMR2_InterruptHandler();
+        TMR4_InterruptHandler();
     }
 }
 
 
-void TMR2_SetInterruptHandler(void (* InterruptHandler)(void)){
-    TMR2_InterruptHandler = InterruptHandler;
+void TMR4_SetInterruptHandler(void (* InterruptHandler)(void)){
+    TMR4_InterruptHandler = InterruptHandler;
 }
 
-void TMR2_DefaultInterruptHandler(void){
-    // add your TMR2 interrupt custom code
-    // or set custom function using TMR2_SetInterruptHandler()
+void TMR4_DefaultInterruptHandler(void){
+    // add your TMR4 interrupt custom code
+    // or set custom function using TMR4_SetInterruptHandler()
 }
 
 /**

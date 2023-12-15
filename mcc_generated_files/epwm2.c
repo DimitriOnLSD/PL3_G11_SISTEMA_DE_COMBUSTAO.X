@@ -1,24 +1,24 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs Header File
+  EPWM2 Generated Driver File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.h
+  @File Name
+    epwm2.c
 
-  @Summary:
-    This is the mcc.h file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated driver implementation file for the EPWM2 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This source file provides implementations for driver APIs for EPWM2.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
         Device            :  PIC18F45K22
-        Driver Version    :  2.00
+        Driver Version    :  2.01
     The generated drivers are tested against the following:
-        Compiler          :  XC8 2.10 and above or later
-        MPLAB             :  MPLAB X 5.30
+        Compiler          :  XC8 2.10 and above
+         MPLAB 	          :  MPLAB X 5.30
 */
 
 /*
@@ -44,55 +44,58 @@
     SOFTWARE.
 */
 
-#ifndef MCC_H
-#define	MCC_H
+/**
+  Section: Included Files
+*/
+
 #include <xc.h>
-#include "device_config.h"
-#include "pin_manager.h"
-#include <stdint.h>
-#include <stdbool.h>
-#include <conio.h>
-#include "interrupt_manager.h"
-#include "tmr4.h"
-#include "tmr1.h"
-#include "tmr2.h"
-#include "tmr0.h"
 #include "epwm2.h"
-#include "epwm1.h"
-#include "ext_int.h"
-#include "epwm3.h"
-#include "adc.h"
-#include "eusart1.h"
-
-
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the device to the default states configured in the
- *                  MCC GUI
- * @Example
-    SYSTEM_Initialize(void);
- */
-void SYSTEM_Initialize(void);
+  Section: Macro Declarations
+*/
+
+#define PWM2_INITIALIZE_DUTY_VALUE    0
 
 /**
- * @Param
-    none
- * @Returns
-    none
- * @Description
-    Initializes the oscillator to the default states configured in the
- *                  MCC GUI
- * @Example
-    OSCILLATOR_Initialize(void);
- */
-void OSCILLATOR_Initialize(void);
+  Section: EPWM Module APIs
+*/
 
-#endif	/* MCC_H */
+void EPWM2_Initialize(void)
+{
+    // Set the EPWM2 to the options selected in the User Interface
+	
+	// CCP2M P2A,P2C: active high; P2B,P2D: active high; DC2B 0; P2M single; 
+	CCP2CON = 0x0C;    
+	
+	// CCP2ASE operating; PSS2BD low; PSS2AC low; CCP2AS disabled; 
+	ECCP2AS = 0x00;    
+	
+	// P2RSEN automatic_restart; P2DC 0; 
+	PWM2CON = 0x80;    
+	
+	// STR2D P2D_to_port; STR2C P2C_to_port; STR2B P2B_to_port; STR2A P2A_to_CCP2M; STR2SYNC start_at_begin; 
+	PSTR2CON = 0x01;    
+	
+	// CCPR2H 0; 
+	CCPR2H = 0x00;    
+	
+	// CCPR2L 0; 
+	CCPR2L = 0x00;    
+
+	// Selecting Timer4
+	CCPTMRS0bits.C2TSEL = 0x1;
+}
+
+void EPWM2_LoadDutyValue(uint16_t dutyValue)
+{
+   // Writing to 8 MSBs of pwm duty cycle in CCPRL register
+    CCPR2L = ((dutyValue & 0x03FC)>>2);
+    
+   // Writing to 2 LSBs of pwm duty cycle in CCPCON register
+    CCP2CON = ((uint8_t)(CCP2CON & 0xCF) | ((dutyValue & 0x0003)<<4));
+}
 /**
  End of File
 */
+

@@ -68,7 +68,7 @@
 #pragma config CCP3MX = PORTB5    // P3A/CCP3 Mux bit->P3A/CCP3 input/output is multiplexed with RB5
 #pragma config HFOFST = ON    // HFINTOSC Fast Start-up->HFINTOSC output and ready status are not delayed by the oscillator stable status
 #pragma config T3CMX = PORTC0    // Timer3 Clock input mux bit->T3CKI is on RC0
-#pragma config P2BMX = PORTD2    // ECCP2 B output mux bit->P2B is on RD2
+#pragma config P2BMX = PORTC0    // ECCP2 B output mux bit->P2B is on RC0
 #pragma config MCLRE = EXTMCLR    // MCLR Pin Enable bit->MCLR pin enabled, RE3 input pin disabled
 
 // CONFIG4L
