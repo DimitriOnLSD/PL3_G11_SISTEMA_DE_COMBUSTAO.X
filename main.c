@@ -51,9 +51,9 @@ void TMR1_interruptHandler(void) {
 
 void TMR2_interruptHandler(void) {
     count++; // 1ms
-    if (count >= 1000) { // 1000 ms
+    if (count >= 2000) { // 0.5 Hz
         EPWM1_LoadDutyValue(100);
-        if (count >= 1500) { // signal lasts for 500 ms
+        if (count >= 2500) { // signal lasts for 500 ms
             count = 0;
         }
     } else {
@@ -148,20 +148,6 @@ void main(void) {
     SYSTEM_Initialize();
     ADC_SelectChannel(MPX4250);
 
-    // EXT_INT0_InterruptDisable();
-    // EXT_INT0_InterruptFlagClear()
-
-    // TMR0_StartTimer();
-    // TMR0_StopTimer():
-
-    // TMR1_StartTimer();
-    // TMR1_StopTimer();
-
-    // TMR2_StartTimer();
-    // TMR2_StopTimer();
-
-    TMR4_StartTimer();
-
     INT0_SetInterruptHandler(INT_interruptHandler);
     TMR0_SetInterruptHandler(TMR0_interruptHandler);
     TMR1_SetInterruptHandler(TMR1_interruptHandler);
@@ -193,8 +179,10 @@ void main(void) {
         } else {
             if (pressure < 30) {
                 EPWM2_LoadDutyValue(0);
+                EPWM3_LoadDutyValue(0);
             } else if (pressure >= 30 && pressure < 60) {
-
+                EPWM2_LoadDutyValue(100);
+                EPWM3_LoadDutyValue(100);
             } else if (pressure >= 60 && pressure < 90) {
 
             } else if (pressure >= 90 && pressure < 120) {
