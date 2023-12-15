@@ -14,7 +14,7 @@
     This source file provides APIs for TMR1.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.01
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above

@@ -16,7 +16,7 @@
     all modules selected in the GUI.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.12
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above or later
@@ -58,27 +58,24 @@ void  INTERRUPT_Initialize (void)
 
     // Interrupt INT0I has no priority bit. It will always be called from the High Interrupt Vector
 
-    // RCI - high priority
-    IPR1bits.RC1IP = 1;
+    // ADI - high priority
+    IPR1bits.ADIP = 1;
 
     // TMRI - high priority
-    IPR5bits.TMR4IP = 1;
-
-    // TMRI - high priority
-    IPR1bits.TMR2IP = 1;
-
-    // RBI - high priority
-    INTCON2bits.RBIP = 1;
+    INTCON2bits.TMR0IP = 1;
 
     // TMRI - high priority
     IPR1bits.TMR1IP = 1;
 
+    // RBI - high priority
+    INTCON2bits.RBIP = 1;
 
-    // ADI - low priority
-    IPR1bits.ADIP = 0;    
 
     // TMRI - low priority
-    INTCON2bits.TMR0IP = 0;    
+    IPR1bits.TMR2IP = 0;    
+
+    // RCI - low priority
+    IPR1bits.RC1IP = 0;    
 
 }
 
@@ -89,25 +86,21 @@ void __interrupt() INTERRUPT_InterruptManagerHigh (void)
     {
         INT0_ISR();
     }
-    else if(PIE1bits.RC1IE == 1 && PIR1bits.RC1IF == 1)
+    else if(PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1)
     {
-        EUSART1_RxDefaultInterruptHandler();
+        ADC_ISR();
     }
-    else if(PIE5bits.TMR4IE == 1 && PIR5bits.TMR4IF == 1)
+    else if(INTCONbits.TMR0IE == 1 && INTCONbits.TMR0IF == 1)
     {
-        TMR4_ISR();
-    }
-    else if(PIE1bits.TMR2IE == 1 && PIR1bits.TMR2IF == 1)
-    {
-        TMR2_ISR();
-    }
-    else if(INTCONbits.RBIE == 1 && INTCONbits.RBIF == 1)
-    {
-        PIN_MANAGER_IOC();
+        TMR0_ISR();
     }
     else if(PIE1bits.TMR1IE == 1 && PIR1bits.TMR1IF == 1)
     {
         TMR1_ISR();
+    }
+    else if(INTCONbits.RBIE == 1 && INTCONbits.RBIF == 1)
+    {
+        PIN_MANAGER_IOC();
     }
     else
     {
@@ -118,13 +111,13 @@ void __interrupt() INTERRUPT_InterruptManagerHigh (void)
 void __interrupt(low_priority) INTERRUPT_InterruptManagerLow (void)
 {
     // interrupt handler
-    if(PIE1bits.ADIE == 1 && PIR1bits.ADIF == 1)
+    if(PIE1bits.TMR2IE == 1 && PIR1bits.TMR2IF == 1)
     {
-        ADC_ISR();
+        TMR2_ISR();
     }
-    else if(INTCONbits.TMR0IE == 1 && INTCONbits.TMR0IF == 1)
+    else if(PIE1bits.RC1IE == 1 && PIR1bits.RC1IF == 1)
     {
-        TMR0_ISR();
+        EUSART1_RxDefaultInterruptHandler();
     }
     else
     {

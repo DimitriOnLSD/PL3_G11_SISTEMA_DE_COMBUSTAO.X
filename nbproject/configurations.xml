@@ -18,9 +18,6 @@
         <itemPath>mcc_generated_files/epwm1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
         <itemPath>mcc_generated_files/eusart1.h</itemPath>
-        <itemPath>mcc_generated_files/epwm2.h</itemPath>
-        <itemPath>mcc_generated_files/epwm3.h</itemPath>
-        <itemPath>mcc_generated_files/tmr4.h</itemPath>
       </logicalFolder>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -44,9 +41,6 @@
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
         <itemPath>mcc_generated_files/epwm1.c</itemPath>
         <itemPath>mcc_generated_files/eusart1.c</itemPath>
-        <itemPath>mcc_generated_files/epwm3.c</itemPath>
-        <itemPath>mcc_generated_files/epwm2.c</itemPath>
-        <itemPath>mcc_generated_files/tmr4.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>
@@ -62,7 +56,7 @@
     <conf name="default" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>PIC18F45K22</targetDevice>
+        <targetDevice>PIC18F46K22</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>VSMViewerPlatformTool</platformTool>
@@ -71,7 +65,7 @@
         <platform>3</platform>
       </toolsSet>
       <packs>
-        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.6.125"/>
+        <pack name="PIC18F-K_DFP" vendor="Microchip" version="1.13.292"/>
       </packs>
       <ScriptingSettings>
       </ScriptingSettings>
@@ -181,12 +175,18 @@
         <property key="remove-unused-sections" value="true"/>
       </HI-TECH-LINK>
       <Tool>
+        <property key="debugoptions.debug-startup" value="Use system settings"/>
+        <property key="debugoptions.reset-behaviour" value="Use system settings"/>
         <property key="design.file" value="miniprojeto.pdsprj"/>
+        <property key="lastid" value=""/>
         <property key="target.ip.address" value="localhost"/>
         <property key="target.ip.port" value="8001"/>
       </Tool>
       <VSMViewerPlatformTool>
+        <property key="debugoptions.debug-startup" value="Use system settings"/>
+        <property key="debugoptions.reset-behaviour" value="Use system settings"/>
         <property key="design.file" value="miniprojeto.pdsprj"/>
+        <property key="lastid" value=""/>
         <property key="target.ip.address" value="localhost"/>
         <property key="target.ip.port" value="8001"/>
       </VSMViewerPlatformTool>

@@ -26,6 +26,8 @@ uint8_t min_pressure_threshold = 10;
 uint8_t max_pressure_threshold = 150;
 uint16_t count = 0;
 
+uint8_t k = 0;
+
 // 0.263658V -> 0kPa
 // 4.87084V -> 250kPa
 // y=mx+b
@@ -40,7 +42,7 @@ void INT_interruptHandler(void) {
 }
 
 void TMR0_interruptHandler(void) {
-    LATAbits.LATA5 = !LATAbits.LATA5;
+    LATAbits.LATA5 = !LATAbits.LATA5; // 250 ms OFF 250 ms ON -> 2 Hz
     TMR0_InterruptFlagClear(); // Clear the Timer0 interrupt flag
 }
 
@@ -51,19 +53,15 @@ void TMR1_interruptHandler(void) {
 
 void TMR2_interruptHandler(void) {
     count++; // 1ms
-    if (count >= 2000) { // 0.5 Hz
+    if (count >= 1000) { // 1000ms OFF 1000ms ON -> 0.5 Hz
         EPWM1_LoadDutyValue(100);
-        if (count >= 2500) { // signal lasts for 500 ms
+        if (count >= 2000) { // signal lasts for 1000 ms
             count = 0;
         }
     } else {
         EPWM1_LoadDutyValue(0);
     }
     TMR2_InterruptFlagClear(); // Clear the Timer2 interrupt flag
-}
-
-void TMR4_interruptHandler(void) {
-    TMR4_InterruptFlagClear();
 }
 
 void ADC_interruptHandler(void) {
@@ -73,8 +71,10 @@ void ADC_interruptHandler(void) {
 
 void turnOffAlarm() {
     LATAbits.LATA5 = 0;
+    EPWM1_LoadDutyValue(0);
     TMR0_StopTimer();
     TMR2_StopTimer();
+    count = 1000;
 }
 
 void triggerAlarm() {
@@ -152,12 +152,13 @@ void main(void) {
     TMR0_SetInterruptHandler(TMR0_interruptHandler);
     TMR1_SetInterruptHandler(TMR1_interruptHandler);
     TMR2_SetInterruptHandler(TMR2_interruptHandler);
-    TMR4_SetInterruptHandler(TMR4_interruptHandler);
     ADC_SetInterruptHandler(ADC_interruptHandler);
 
     INTERRUPT_GlobalInterruptHighEnable();
     INTERRUPT_GlobalInterruptLowEnable();
     INTERRUPT_PeripheralInterruptEnable();
+
+    turnOffAlarm();
 
     while (1) {
         if (update) {
@@ -175,20 +176,12 @@ void main(void) {
         }
 
         if (user_override) {
-            EPWM2_LoadDutyValue(valve);
         } else {
             if (pressure < 30) {
-                EPWM2_LoadDutyValue(0);
-                EPWM3_LoadDutyValue(0);
             } else if (pressure >= 30 && pressure < 60) {
-                EPWM2_LoadDutyValue(100);
-                EPWM3_LoadDutyValue(100);
             } else if (pressure >= 60 && pressure < 90) {
-
             } else if (pressure >= 90 && pressure < 120) {
-
             } else {
-                
             }
         }
 

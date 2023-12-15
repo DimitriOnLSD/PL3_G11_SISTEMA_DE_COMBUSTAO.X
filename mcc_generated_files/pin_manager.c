@@ -14,7 +14,7 @@
     This header file provides implementations for pin APIs for all pins selected in the GUI.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.11
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above
@@ -68,8 +68,8 @@ void PIN_MANAGER_Initialize(void)
     */
     TRISE = 0x07;
     TRISA = 0xDF;
-    TRISB = 0xDF;
-    TRISC = 0xB9;
+    TRISB = 0x0F;
+    TRISC = 0xBB;
     TRISD = 0xFF;
 
     /**

@@ -3,15 +3,15 @@
   <executable name="dist/default/debug\PL3_G11_SISTEMA_DE_COMBUSTAO.X.debug.hex">
     <memory name="program">
       <units>bytes</units>
-      <length>32768</length>
-      <used>16105</used>
-      <free>16663</free>
+      <length>65536</length>
+      <used>15915</used>
+      <free>49621</free>
     </memory>
     <memory name="data">
       <units>bytes</units>
-      <length>1536</length>
-      <used>359</used>
-      <free>1177</free>
+      <length>3896</length>
+      <used>363</used>
+      <free>3533</free>
     </memory>
   </executable>
 </project>

@@ -14,7 +14,7 @@
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above or later
@@ -53,11 +53,8 @@ void SYSTEM_Initialize(void)
     INTERRUPT_Initialize();
     PIN_MANAGER_Initialize();
     OSCILLATOR_Initialize();
-    EPWM2_Initialize();
-    EPWM3_Initialize();
     ADC_Initialize();
     EPWM1_Initialize();
-    TMR4_Initialize();
     TMR2_Initialize();
     TMR1_Initialize();
     EXT_INT_Initialize();

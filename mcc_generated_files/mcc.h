@@ -14,7 +14,7 @@
     This header file provides implementations for driver APIs for all modules selected in the GUI.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.00
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above or later
@@ -53,14 +53,11 @@
 #include <stdbool.h>
 #include <conio.h>
 #include "interrupt_manager.h"
-#include "tmr4.h"
 #include "tmr1.h"
 #include "tmr2.h"
 #include "tmr0.h"
-#include "epwm2.h"
 #include "epwm1.h"
 #include "ext_int.h"
-#include "epwm3.h"
 #include "adc.h"
 #include "eusart1.h"
 

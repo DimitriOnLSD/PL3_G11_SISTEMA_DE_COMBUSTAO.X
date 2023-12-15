@@ -14,7 +14,7 @@
     This header file provides APIs for driver for .
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
-        Device            :  PIC18F45K22
+        Device            :  PIC18F46K22
         Driver Version    :  2.11
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above
@@ -110,25 +110,67 @@
 #define disableAlarm_SetAnalogMode()      do { ANSELBbits.ANSB0 = 1; } while(0)
 #define disableAlarm_SetDigitalMode()     do { ANSELBbits.ANSB0 = 0; } while(0)
 
-// get/set RB5 procedures
-#define RB5_SetHigh()            do { LATBbits.LATB5 = 1; } while(0)
-#define RB5_SetLow()             do { LATBbits.LATB5 = 0; } while(0)
-#define RB5_Toggle()             do { LATBbits.LATB5 = ~LATBbits.LATB5; } while(0)
-#define RB5_GetValue()              PORTBbits.RB5
-#define RB5_SetDigitalInput()    do { TRISBbits.TRISB5 = 1; } while(0)
-#define RB5_SetDigitalOutput()   do { TRISBbits.TRISB5 = 0; } while(0)
-#define RB5_SetPullup()             do { WPUBbits.WPUB5 = 1; } while(0)
-#define RB5_ResetPullup()           do { WPUBbits.WPUB5 = 0; } while(0)
-#define RB5_SetAnalogMode()         do { ANSELBbits.ANSB5 = 1; } while(0)
-#define RB5_SetDigitalMode()        do { ANSELBbits.ANSB5 = 0; } while(0)
+// get/set IN1 aliases
+#define IN1_TRIS                 TRISBbits.TRISB4
+#define IN1_LAT                  LATBbits.LATB4
+#define IN1_PORT                 PORTBbits.RB4
+#define IN1_WPU                  WPUBbits.WPUB4
+#define IN1_ANS                  ANSELBbits.ANSB4
+#define IN1_SetHigh()            do { LATBbits.LATB4 = 1; } while(0)
+#define IN1_SetLow()             do { LATBbits.LATB4 = 0; } while(0)
+#define IN1_Toggle()             do { LATBbits.LATB4 = ~LATBbits.LATB4; } while(0)
+#define IN1_GetValue()           PORTBbits.RB4
+#define IN1_SetDigitalInput()    do { TRISBbits.TRISB4 = 1; } while(0)
+#define IN1_SetDigitalOutput()   do { TRISBbits.TRISB4 = 0; } while(0)
+#define IN1_SetPullup()          do { WPUBbits.WPUB4 = 1; } while(0)
+#define IN1_ResetPullup()        do { WPUBbits.WPUB4 = 0; } while(0)
+#define IN1_SetAnalogMode()      do { ANSELBbits.ANSB4 = 1; } while(0)
+#define IN1_SetDigitalMode()     do { ANSELBbits.ANSB4 = 0; } while(0)
 
-// get/set RC1 procedures
-#define RC1_SetHigh()            do { LATCbits.LATC1 = 1; } while(0)
-#define RC1_SetLow()             do { LATCbits.LATC1 = 0; } while(0)
-#define RC1_Toggle()             do { LATCbits.LATC1 = ~LATCbits.LATC1; } while(0)
-#define RC1_GetValue()              PORTCbits.RC1
-#define RC1_SetDigitalInput()    do { TRISCbits.TRISC1 = 1; } while(0)
-#define RC1_SetDigitalOutput()   do { TRISCbits.TRISC1 = 0; } while(0)
+// get/set IN2 aliases
+#define IN2_TRIS                 TRISBbits.TRISB5
+#define IN2_LAT                  LATBbits.LATB5
+#define IN2_PORT                 PORTBbits.RB5
+#define IN2_WPU                  WPUBbits.WPUB5
+#define IN2_ANS                  ANSELBbits.ANSB5
+#define IN2_SetHigh()            do { LATBbits.LATB5 = 1; } while(0)
+#define IN2_SetLow()             do { LATBbits.LATB5 = 0; } while(0)
+#define IN2_Toggle()             do { LATBbits.LATB5 = ~LATBbits.LATB5; } while(0)
+#define IN2_GetValue()           PORTBbits.RB5
+#define IN2_SetDigitalInput()    do { TRISBbits.TRISB5 = 1; } while(0)
+#define IN2_SetDigitalOutput()   do { TRISBbits.TRISB5 = 0; } while(0)
+#define IN2_SetPullup()          do { WPUBbits.WPUB5 = 1; } while(0)
+#define IN2_ResetPullup()        do { WPUBbits.WPUB5 = 0; } while(0)
+#define IN2_SetAnalogMode()      do { ANSELBbits.ANSB5 = 1; } while(0)
+#define IN2_SetDigitalMode()     do { ANSELBbits.ANSB5 = 0; } while(0)
+
+// get/set IN3 aliases
+#define IN3_TRIS                 TRISBbits.TRISB6
+#define IN3_LAT                  LATBbits.LATB6
+#define IN3_PORT                 PORTBbits.RB6
+#define IN3_WPU                  WPUBbits.WPUB6
+#define IN3_SetHigh()            do { LATBbits.LATB6 = 1; } while(0)
+#define IN3_SetLow()             do { LATBbits.LATB6 = 0; } while(0)
+#define IN3_Toggle()             do { LATBbits.LATB6 = ~LATBbits.LATB6; } while(0)
+#define IN3_GetValue()           PORTBbits.RB6
+#define IN3_SetDigitalInput()    do { TRISBbits.TRISB6 = 1; } while(0)
+#define IN3_SetDigitalOutput()   do { TRISBbits.TRISB6 = 0; } while(0)
+#define IN3_SetPullup()          do { WPUBbits.WPUB6 = 1; } while(0)
+#define IN3_ResetPullup()        do { WPUBbits.WPUB6 = 0; } while(0)
+
+// get/set IN4 aliases
+#define IN4_TRIS                 TRISBbits.TRISB7
+#define IN4_LAT                  LATBbits.LATB7
+#define IN4_PORT                 PORTBbits.RB7
+#define IN4_WPU                  WPUBbits.WPUB7
+#define IN4_SetHigh()            do { LATBbits.LATB7 = 1; } while(0)
+#define IN4_SetLow()             do { LATBbits.LATB7 = 0; } while(0)
+#define IN4_Toggle()             do { LATBbits.LATB7 = ~LATBbits.LATB7; } while(0)
+#define IN4_GetValue()           PORTBbits.RB7
+#define IN4_SetDigitalInput()    do { TRISBbits.TRISB7 = 1; } while(0)
+#define IN4_SetDigitalOutput()   do { TRISBbits.TRISB7 = 0; } while(0)
+#define IN4_SetPullup()          do { WPUBbits.WPUB7 = 1; } while(0)
+#define IN4_ResetPullup()        do { WPUBbits.WPUB7 = 0; } while(0)
 
 // get/set RC2 procedures
 #define RC2_SetHigh()            do { LATCbits.LATC2 = 1; } while(0)
