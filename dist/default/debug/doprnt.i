@@ -867,11 +867,11 @@ static char dbuf[80];
 
 
 
+static int nout;
 
 
 
-
-static void pad(FILE *fp, char *buf, int p)
+static int pad(FILE *fp, char *buf, int p)
 {
     int i;
 # 205 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
@@ -894,11 +894,11 @@ static void pad(FILE *fp, char *buf, int p)
 
 
 
-
+    return (int)(strlen(buf) + (size_t)p);
 
 }
 # 513 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
-static void dtoa(FILE *fp, vfpf_sint_t d)
+static int dtoa(FILE *fp, vfpf_sint_t d)
 {
  char s;
     int i, w;
@@ -953,12 +953,12 @@ static void dtoa(FILE *fp, vfpf_sint_t d)
     }
 
 
-    return (void) pad(fp, &dbuf[i], w);
+    return (int) pad(fp, &dbuf[i], w);
 }
 
 
 
-static void efgtoa(FILE *fp, long double f, char c)
+static int efgtoa(FILE *fp, long double f, char c)
 {
     char mode, nmode, pp, sign, esign;
     int d, e, i, m, n, ne, p, t, w;
@@ -1006,7 +1006,7 @@ static void efgtoa(FILE *fp, long double f, char c)
             strcpy(&dbuf[n], "inf");
         }
         w -= ((sizeof("inf")/sizeof("inf"[0]))-1);
-        return (void) pad(fp, &dbuf[0], w);
+        return (int) pad(fp, &dbuf[0], w);
     }
     if (( __fpclassifyf(g.f) == 0 )) {
   if (sign) {
@@ -1024,7 +1024,7 @@ static void efgtoa(FILE *fp, long double f, char c)
             strcpy(&dbuf[n], "nan");
         }
         w -= ((sizeof("nan")/sizeof("nan"[0]))-1);
-        return (void) pad(fp, &dbuf[0], w);
+        return (int) pad(fp, &dbuf[0], w);
     }
 
 
@@ -1171,10 +1171,10 @@ static void efgtoa(FILE *fp, long double f, char c)
  w -= i;
 
 
-    return (void) pad(fp, &dbuf[n], w);
+    return (int) pad(fp, &dbuf[n], w);
 }
 # 942 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
-static void stoa(FILE *fp, char *s)
+static int stoa(FILE *fp, char *s)
 {
     char *cp;
     int l, p;
@@ -1203,7 +1203,9 @@ static void stoa(FILE *fp, char *s)
         fputc(*cp, fp);
         ++cp;
     }
-# 997 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+# 995 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+    return l;
+
 }
 # 1157 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
 static int
@@ -1225,7 +1227,7 @@ read_prec_or_width (const char **fmt, va_list *ap) {
 
 
 
-static void
+static int
 vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
 {
     char c, *cp;
@@ -1258,7 +1260,7 @@ vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
 
    *fmt = cp+1;
 # 1432 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
-   return (void) dtoa(fp, convarg.sint);
+   return (int) dtoa(fp, convarg.sint);
 
   }
 # 1656 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
@@ -1273,7 +1275,7 @@ vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
   }
   if (done) {
 # 1682 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
-   return (void) stoa(fp, (*(char * *)__va_arg(*(char * **)ap, (char *)0)));
+   return (int) stoa(fp, (*(char * *)__va_arg(*(char * **)ap, (char *)0)));
 
   }
 
@@ -1316,7 +1318,7 @@ vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
 # 1779 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
     case 'f':
 # 1790 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
-     return (void) efgtoa(fp, convarg.f, *cp);
+     return (int) efgtoa(fp, convarg.f, *cp);
 
    }
   }
@@ -1327,19 +1329,19 @@ vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
         if ((*fmt)[0] == '%') {
             ++*fmt;
             fputc((int)'%', fp);
-            return (void) 1;
+            return (int) 1;
         }
 
 
 
         ++*fmt;
-        return (void) 0;
+        return (int) 0;
     }
 
 
     fputc((int)(*fmt)[0], fp);
     ++*fmt;
-    return (void) 1;
+    return (int) 1;
 }
 
 
@@ -1350,18 +1352,18 @@ int vfprintf(FILE *fp, const char *fmt, va_list ap)
 
     cfmt = (char *)fmt;
 
-
+    nout = 0;
 
     while (*cfmt) {
 
-
+        nout +=
 
    vfpfcnvrt(fp, &cfmt, ap);
     }
 
+    return nout;
 
 
- return 0;
 
 
 

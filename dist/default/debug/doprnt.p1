@@ -9,6 +9,9 @@ Version 4.0 HI-TECH Software Intermediate Code
 "113
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\stdio.h: 113: int fputs(const char *restrict, FILE *restrict);
 [v _fputs `(i ~T0 @X0 0 ef2`*Cuc`*S1 ]
+"54 C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\string.h
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\string.h: 54: size_t strlen (const char *);
+[v _strlen `(ui ~T0 @X0 0 ef1`*Cuc ]
 "78 C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\stdlib.h
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\stdlib.h: 78: int abs (int);
 [v _abs `(i ~T0 @X0 0 ef1`i ]
@@ -31,7 +34,7 @@ Version 4.0 HI-TECH Software Intermediate Code
 "27 C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\string.h
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\string.h: 27: void *memcpy (void *restrict, const void *restrict, size_t);
 [v _memcpy `(*v ~T0 @X0 0 ef3`*v`*Cv`ui ]
-[v F1191 `*v ~T0 @X0 -> -> 1 `i `ux t ]
+[v F1192 `*v ~T0 @X0 -> -> 1 `i `ux t ]
 "14 C:\Program Files\Microchip\xc8\v2.45\pic\include\c99\stdarg.h
 [v ___va_arg `(*v ~T0 @X0 0 ev`*v ]
 [p i ___va_arg ]
@@ -49,15 +52,18 @@ Version 4.0 HI-TECH Software Intermediate Code
 "185
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 185: static char dbuf[80];
 [v _dbuf `uc ~T0 @X0 -> 80 `i s ]
+"189
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 189: static int nout;
+[v _nout `i ~T0 @X0 1 s ]
 "193
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 193: static void pad(FILE *fp, char *buf, int p)
-[v _pad `(v ~T0 @X0 1 sf3`*S1`*uc`i ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 193: static int pad(FILE *fp, char *buf, int p)
+[v _pad `(i ~T0 @X0 1 sf3`*S1`*uc`i ]
 "194
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 194: {
 {
 [e :U _pad ]
 "193
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 193: static void pad(FILE *fp, char *buf, int p)
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 193: static int pad(FILE *fp, char *buf, int p)
 [v _fp `*S1 ~T0 @X0 1 r1 ]
 [v _buf `*uc ~T0 @X0 1 r2 ]
 [v _p `i ~T0 @X0 1 r3 ]
@@ -103,19 +109,23 @@ Version 4.0 HI-TECH Software Intermediate Code
 "218
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 218:         fputs((const char *)buf, fp);
 [e ( _fputs (2 , -> _buf `*Cuc _fp ]
+"224
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 224:     return (int)(strlen(buf) + (size_t)p);
+[e ) -> + ( _strlen (1 -> _buf `*Cuc -> _p `ui `i ]
+[e $UE 10  ]
 "226
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 226: }
 [e :UE 10 ]
 }
 "513
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 513: static void dtoa(FILE *fp, vfpf_sint_t d)
-[v _dtoa `(v ~T0 @X0 1 sf2`*S1`i ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 513: static int dtoa(FILE *fp, vfpf_sint_t d)
+[v _dtoa `(i ~T0 @X0 1 sf2`*S1`i ]
 "514
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 514: {
 {
 [e :U _dtoa ]
 "513
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 513: static void dtoa(FILE *fp, vfpf_sint_t d)
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 513: static int dtoa(FILE *fp, vfpf_sint_t d)
 [v _fp `*S1 ~T0 @X0 1 r1 ]
 [v _d `i ~T0 @X0 1 r2 ]
 "514
@@ -207,22 +217,22 @@ Version 4.0 HI-TECH Software Intermediate Code
 }
 [e :U 20 ]
 "582
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 582:     return (void) pad(fp, &dbuf[i], w);
-[e ) -> ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux _w `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 582:     return (int) pad(fp, &dbuf[i], w);
+[e ) ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> _i `ui `ux -> -> # *U &U _dbuf `ui `ux _w ]
 [e $UE 15  ]
 "583
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 583: }
 [e :UE 15 ]
 }
 "587
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 587: static void efgtoa(FILE *fp, long double f, char c)
-[v _efgtoa `(v ~T0 @X0 1 sf3`*S1`d`uc ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 587: static int efgtoa(FILE *fp, long double f, char c)
+[v _efgtoa `(i ~T0 @X0 1 sf3`*S1`d`uc ]
 "588
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 588: {
 {
 [e :U _efgtoa ]
 "587
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 587: static void efgtoa(FILE *fp, long double f, char c)
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 587: static int efgtoa(FILE *fp, long double f, char c)
 [v _fp `*S1 ~T0 @X0 1 r1 ]
 [v _f `d ~T0 @X0 1 r2 ]
 [v _c `uc ~T0 @X0 1 r3 ]
@@ -329,8 +339,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 634:         w -= ((sizeof("inf")/sizeof("inf"[0]))-1);
 [e =- _w -> - / -> 4 `ui -> # *U + :s 3C * -> -> 0 `i `x -> -> # *U :s 3C `i `x `ui -> -> 1 `i `ui `i ]
 "635
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 635:         return (void) pad(fp, &dbuf[0], w);
-[e ) -> ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux _w `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 635:         return (int) pad(fp, &dbuf[0], w);
+[e ) ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux _w ]
 [e $UE 21  ]
 "636
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 636:     }
@@ -370,8 +380,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 652:         w -= ((sizeof("nan")/sizeof("nan"[0]))-1);
 [e =- _w -> - / -> 4 `ui -> # *U + :s 6C * -> -> 0 `i `x -> -> # *U :s 6C `i `x `ui -> -> 1 `i `ui `i ]
 "653
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 653:         return (void) pad(fp, &dbuf[0], w);
-[e ) -> ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux _w `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 653:         return (int) pad(fp, &dbuf[0], w);
+[e ) ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> -> 0 `i `ui `ux -> -> # *U &U _dbuf `ui `ux _w ]
 [e $UE 21  ]
 "654
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 654:     }
@@ -745,22 +755,22 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 864:  w -= i;
 [e =- _w _i ]
 "867
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 867:     return (void) pad(fp, &dbuf[n], w);
-[e ) -> ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> _n `ui `ux -> -> # *U &U _dbuf `ui `ux _w `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 867:     return (int) pad(fp, &dbuf[n], w);
+[e ) ( _pad (3 , , _fp &U *U + &U _dbuf * -> -> _n `ui `ux -> -> # *U &U _dbuf `ui `ux _w ]
 [e $UE 21  ]
 "868
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 868: }
 [e :UE 21 ]
 }
 "942
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 942: static void stoa(FILE *fp, char *s)
-[v _stoa `(v ~T0 @X0 1 sf2`*S1`*uc ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 942: static int stoa(FILE *fp, char *s)
+[v _stoa `(i ~T0 @X0 1 sf2`*S1`*uc ]
 "943
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 943: {
 {
 [e :U _stoa ]
 "942
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 942: static void stoa(FILE *fp, char *s)
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 942: static int stoa(FILE *fp, char *s)
 [v _fp `*S1 ~T0 @X0 1 r1 ]
 [v _s `*uc ~T0 @X0 1 r2 ]
 "943
@@ -839,18 +849,22 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 979:     while (p--) {
 [e $ != -- _p -> 1 `i -> 0 `i 65  ]
 [e :U 66 ]
+"995
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 995:     return l;
+[e ) _l ]
+[e $UE 57  ]
 "997
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 997: }
 [e :UE 57 ]
 }
 "1158
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1158: read_prec_or_width (const char **fmt, va_list *ap) {
-[v _read_prec_or_width `(i ~T0 @X0 1 sf2`**Cuc`*F1191 ]
+[v _read_prec_or_width `(i ~T0 @X0 1 sf2`**Cuc`*F1192 ]
 {
 [e :U _read_prec_or_width ]
 [v _fmt `**Cuc ~T0 @X0 1 r1 ]
-[v F1194 `*v ~T0 @X0 -> -> 1 `i `ux t ]
-[v _ap `*F1194 ~T0 @X0 1 r2 ]
+[v F1195 `*v ~T0 @X0 -> -> 1 `i `ux t ]
+[v _ap `*F1195 ~T0 @X0 1 r2 ]
 [f ]
 "1159
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1159:     int n = 0;
@@ -908,7 +922,7 @@ Version 4.0 HI-TECH Software Intermediate Code
 }
 "1177
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1177: vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
-[v _vfpfcnvrt `(v ~T0 @X0 1 sf3`*S1`**uc`**v ]
+[v _vfpfcnvrt `(i ~T0 @X0 1 sf3`*S1`**uc`**v ]
 "1178
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1178: {
 {
@@ -951,10 +965,10 @@ Version 4.0 HI-TECH Software Intermediate Code
 "1266
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1266:             ++*fmt;
 [e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
-[v F1209 `*v ~T0 @X0 -> -> 1 `i `ux t ]
+[v F1210 `*v ~T0 @X0 -> -> 1 `i `ux t ]
 "1267
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1267:    prec = read_prec_or_width(fmt, ap);
-[e = _prec ( _read_prec_or_width (2 , -> _fmt `**Cuc -> _ap `*F1209 ]
+[e = _prec ( _read_prec_or_width (2 , -> _fmt `**Cuc -> _ap `*F1210 ]
 "1268
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1268:   }
 }
@@ -973,8 +987,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1406:    *fmt = cp+1;
 [e = *U _fmt + _cp * -> -> 1 `i `x -> -> # *U _cp `i `x ]
 "1432
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1432:    return (void) dtoa(fp, convarg.sint);
-[e ) -> ( _dtoa (2 , _fp . _convarg 0 `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1432:    return (int) dtoa(fp, convarg.sint);
+[e ) ( _dtoa (2 , _fp . _convarg 0 ]
 [e $UE 73  ]
 "1434
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1434:   }
@@ -1018,8 +1032,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [e $ ! != -> _done `i -> 0 `i 81  ]
 {
 "1682
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1682:    return (void) stoa(fp, (*(char * *)__va_arg(*(char * **)ap, (char *)0)));
-[e ) -> ( _stoa (2 , _fp *U -> ( ___va_arg , (. -> *U -> _ap `***uc `*v -> -> 0 `i `*uc `**uc `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1682:    return (int) stoa(fp, (*(char * *)__va_arg(*(char * **)ap, (char *)0)));
+[e ) ( _stoa (2 , _fp *U -> ( ___va_arg , (. -> *U -> _ap `***uc `*v -> -> 0 `i `*uc `**uc ]
 [e $UE 73  ]
 "1684
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1684:   }
@@ -1123,8 +1137,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1779:     case 'f':
 [e :U 95 ]
 "1790
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1790:      return (void) efgtoa(fp, convarg.f, *cp);
-[e ) -> ( _efgtoa (3 , , _fp . _convarg 2 *U _cp `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1790:      return (int) efgtoa(fp, convarg.f, *cp);
+[e ) ( _efgtoa (3 , , _fp . _convarg 2 *U _cp ]
 [e $UE 73  ]
 "1792
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1792:    }
@@ -1149,8 +1163,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1800:             fputc((int)'%', fp);
 [e ( _fputc (2 , -> -> 37 `ui `i _fp ]
 "1801
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1801:             return (void) 1;
-[e ) -> -> 1 `i `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1801:             return (int) 1;
+[e ) -> 1 `i ]
 [e $UE 73  ]
 "1802
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1802:         }
@@ -1160,8 +1174,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1806:         ++*fmt;
 [e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
 "1807
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1807:         return (void) 0;
-[e ) -> -> 0 `i `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1807:         return (int) 0;
+[e ) -> 0 `i ]
 [e $UE 73  ]
 "1808
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1808:     }
@@ -1174,8 +1188,8 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1812:     ++*fmt;
 [e =+ *U _fmt * -> -> 1 `i `x -> -> # *U *U _fmt `i `x ]
 "1813
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1813:     return (void) 1;
-[e ) -> -> 1 `i `v ]
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1813:     return (int) 1;
+[e ) -> 1 `i ]
 [e $UE 73  ]
 "1814
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1814: }
@@ -1202,14 +1216,17 @@ Version 4.0 HI-TECH Software Intermediate Code
 "1822
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1822:     cfmt = (char *)fmt;
 [e = _cfmt -> _fmt `*uc ]
+"1824
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1824:     nout = 0;
+[e = _nout -> 0 `i ]
 "1826
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1826:     while (*cfmt) {
 [e $U 98  ]
 [e :U 99 ]
 {
-"1830
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1830:    vfpfcnvrt(fp, &cfmt, ap);
-[e ( _vfpfcnvrt (3 , , _fp &U _cfmt _ap ]
+"1828
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1828:         nout +=
+[e =+ _nout ( _vfpfcnvrt (3 , , _fp &U _cfmt _ap ]
 "1831
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1831:     }
 }
@@ -1218,9 +1235,9 @@ Version 4.0 HI-TECH Software Intermediate Code
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1826:     while (*cfmt) {
 [e $ != -> *U _cfmt `i -> 0 `i 99  ]
 [e :U 100 ]
-"1835
-[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1835:  return 0;
-[e ) -> 0 `i ]
+"1833
+[; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1833:     return nout;
+[e ) _nout ]
 [e $UE 97  ]
 "1840
 [; ;C:\Program Files\Microchip\xc8\v2.45\pic\sources\c99\common\doprnt.c: 1840: }

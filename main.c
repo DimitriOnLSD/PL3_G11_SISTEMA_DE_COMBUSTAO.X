@@ -1,6 +1,9 @@
 #include "mcc_generated_files/mcc.h"
 #include <string.h>
 #include "flag_clear.h"
+#include "lib_ili9341.h"
+#include "xlcd.h"
+
 
 #define STEPS_PER_REV 360
 #define BUZZER_DC 100
@@ -23,6 +26,9 @@ bool alarm_disabled = false; // disable the alarm
 bool user_override = false; // user can change valve opening manually if true
 
 char rx_data;
+char string[50] = "";
+char mybuff1[21] = "MICROPROCESSADORES";
+char mybuff2[21] = "DEE-ESTG";
 uint8_t str[MAX_INPUT_LENGTH];
 uint8_t option;
 uint8_t min_pressure_threshold = 10; // Sets minimum pressure threshold for combustion chamber
@@ -193,6 +199,10 @@ void main(void) {
     SYSTEM_Initialize();
     ADC_SelectChannel(MPX4250);
 
+    SPI2_Open(SPI2_DEFAULT);
+
+    lcd_init();
+
     INT0_SetInterruptHandler(INT_interruptHandler);
     TMR0_SetInterruptHandler(TMR0_interruptHandler);
     TMR1_SetInterruptHandler(TMR1_interruptHandler);
@@ -204,6 +214,20 @@ void main(void) {
     INTERRUPT_PeripheralInterruptEnable();
 
     turnOffAlarm();
+
+    lcd_draw_string(82, 220, "ENGENHARIA ELETROTECNICA", FUCHSIA, BLACK);
+    snprintf(string, sizeof (string), "MICROPROCESSADORES");
+    lcd_draw_string(85, 190, string, LIME, BLACK);
+    snprintf(string, sizeof (string), "2023 / 24");
+    lcd_draw_string(120, 165, string, ILI9341_PINK, BLACK);
+    snprintf(string, sizeof (string), "Em construcao...");
+    lcd_draw_string(20, 140, string, RED, BLACK);
+    snprintf(string, sizeof (string), "yes");
+    lcd_draw_string(40, 120, string, RED, BLACK);
+    snprintf(string, sizeof (string), "Autores: Paulo Sousa");
+    lcd_draw_string(20, 95, string, YELLOW, BLACK);
+    snprintf(string, sizeof (string), "d");
+    lcd_draw_string(90, 75, string, YELLOW, BLACK);    
 
     while (1) {
         updatePressureFromADC();

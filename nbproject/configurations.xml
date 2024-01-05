@@ -18,7 +18,10 @@
         <itemPath>mcc_generated_files/epwm1.h</itemPath>
         <itemPath>mcc_generated_files/tmr2.h</itemPath>
         <itemPath>mcc_generated_files/eusart1.h</itemPath>
+        <itemPath>mcc_generated_files/spi2.h</itemPath>
       </logicalFolder>
+      <itemPath>lib_ili9341.h</itemPath>
+      <itemPath>xlcd.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -41,8 +44,11 @@
         <itemPath>mcc_generated_files/tmr2.c</itemPath>
         <itemPath>mcc_generated_files/epwm1.c</itemPath>
         <itemPath>mcc_generated_files/eusart1.c</itemPath>
+        <itemPath>mcc_generated_files/spi2.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
+      <itemPath>lib_ili9341.c</itemPath>
+      <itemPath>xlcd.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -51,6 +57,9 @@
       <itemPath>MyConfig.mc3</itemPath>
     </logicalFolder>
   </logicalFolder>
+  <sourceRootList>
+    <Elem>.</Elem>
+  </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">

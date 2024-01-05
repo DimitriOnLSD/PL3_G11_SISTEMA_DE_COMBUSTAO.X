@@ -1,21 +1,21 @@
 /**
-  @Generated PIC10 / PIC12 / PIC16 / PIC18 MCUs Source File
+  SPI2 Generated Driver API Header File
 
-  @Company:
+  @Company
     Microchip Technology Inc.
 
-  @File Name:
-    mcc.c
+  @File Name
+    spi2.h
 
-  @Summary:
-    This is the mcc.c file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
+  @Summary
+    This is the generated header file for the SPI2 driver using PIC10 / PIC12 / PIC16 / PIC18 MCUs
 
-  @Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
+  @Description
+    This header file provides APIs for driver for SPI2.
     Generation Information :
         Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.78.1
         Device            :  PIC18F46K22
-        Driver Version    :  2.00
+        Driver Version    :  1.0.0
     The generated drivers are tested against the following:
         Compiler          :  XC8 2.10 and above or later
         MPLAB             :  MPLAB X 5.30
@@ -44,36 +44,30 @@
     SOFTWARE.
 */
 
-#include "mcc.h"
-
-
-void SYSTEM_Initialize(void)
-{
-
-    INTERRUPT_Initialize();
-    SPI2_Initialize();
-    PIN_MANAGER_Initialize();
-    OSCILLATOR_Initialize();
-    ADC_Initialize();
-    EPWM1_Initialize();
-    TMR2_Initialize();
-    EXT_INT_Initialize();
-    TMR1_Initialize();
-    TMR0_Initialize();
-    EUSART1_Initialize();
-}
-
-void OSCILLATOR_Initialize(void)
-{
-    // SCS FOSC; IRCF 1MHz_HFINTOSC/16; IDLEN disabled; 
-    OSCCON = 0x30;
-    // PRISD enabled; SOSCGO disabled; MFIOSEL disabled; 
-    OSCCON2 = 0x04;
-    // INTSRC disabled; PLLEN disabled; TUN 0; 
-    OSCTUNE = 0x00;
-}
-
+#ifndef SPI2_H
+#define SPI2_H
 
 /**
- End of File
+  Section: Included Files
 */
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* SPI interfaces */
+typedef enum { 
+    SPI2_DEFAULT
+} spi2_modes_t;
+
+void SPI2_Initialize(void);
+bool SPI2_Open(spi2_modes_t spi2UniqueConfiguration);
+void SPI2_Close(void);
+uint8_t SPI2_ExchangeByte(uint8_t data);
+void SPI2_ExchangeBlock(void *block, size_t blockSize);
+void SPI2_WriteBlock(void *block, size_t blockSize);
+void SPI2_ReadBlock(void *block, size_t blockSize);
+void SPI2_WriteByte(uint8_t byte);
+uint8_t SPI2_ReadByte(void);
+
+#endif //SPI2_H
