@@ -22,6 +22,7 @@
       </logicalFolder>
       <itemPath>lib_ili9341.h</itemPath>
       <itemPath>xlcd.h</itemPath>
+      <itemPath>main.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

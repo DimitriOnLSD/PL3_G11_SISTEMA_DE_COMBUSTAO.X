@@ -1,15 +1,18 @@
 #include "mcc_generated_files/mcc.h"
 #include <string.h>
-#include "flag_clear.h"
 #include "lib_ili9341.h"
 #include "xlcd.h"
-
+#include "main.h"
 
 #define STEPS_PER_REV 360
 #define BUZZER_DC 100
 #define BUZZER_DURATION 1000
 #define TMR2_COUNTER 1000
+#define MIN_PRESSURE_THRESHOLD 10
+#define MAX_PRESSURE_THRESHOLD 150
 #define MAX_INPUT_LENGTH 10
+#define MAX_LCD_LENGTH 21
+#define MAX_TFT_LENGTH 50
 #define MAX_ADC_VALUE 1023.0
 #define MAX_VREF 5.0
 
@@ -26,9 +29,9 @@ bool alarm_disabled = false; // disable the alarm
 bool user_override = false; // user can change valve opening manually if true
 
 char rx_data;
-char string[50] = "";
-char mybuff1[21] = "MICROPROCESSADORES";
-char mybuff2[21] = "DEE-ESTG";
+char string[MAX_TFT_LENGTH] = "";
+char mybuff1[MAX_LCD_LENGTH] = "MICROPROCESSADORES";
+char mybuff2[MAX_LCD_LENGTH] = "DEE-ESTG";
 uint8_t str[MAX_INPUT_LENGTH];
 uint8_t option;
 uint8_t min_pressure_threshold = 10; // Sets minimum pressure threshold for combustion chamber
@@ -48,32 +51,32 @@ uint16_t count = 0; // Stores timer 2 counter
 const static double m = 54.263105;
 const static double b = -14.306917;
 
-void INT_interruptHandler(void) {
+void INT0_interruptHandler(void) {
     alarm_disabled = !alarm_disabled;
     EXT_INT0_InterruptFlagClear();
 }
 
 void TMR0_interruptHandler(void) {
-    LED_LAT = !LED_LAT; // 250 ms OFF 250 ms ON -> 2 Hz
-    TMR0_InterruptFlagClear(); // Clear the Timer0 interrupt flag
+    LED_LAT = !LED_LAT;
+    TMR0_InterruptFlagClear();
 }
 
 void TMR1_interruptHandler(void) {
     ADC_StartConversion();
-    TMR1_InterruptFlagClear(); // Clear the Timer1 interrupt flag
+    TMR1_InterruptFlagClear();
 }
 
 void TMR2_interruptHandler(void) {
-    count++; // 1ms
-    if (count >= TMR2_COUNTER) { // 1000ms OFF 1000ms ON -> 0.5 Hz
+    count++;
+    if (count >= TMR2_COUNTER) {
         EPWM1_LoadDutyValue(BUZZER_DC);
-        if (count >= (TMR2_COUNTER + BUZZER_DURATION)) { // signal lasts for 1000 ms
+        if (count >= (TMR2_COUNTER + BUZZER_DURATION)) {
             count = 0;
         }
     } else {
         EPWM1_LoadDutyValue(0);
     }
-    TMR2_InterruptFlagClear(); // Clear the Timer2 interrupt flag
+    TMR2_InterruptFlagClear();
 }
 
 void ADC_interruptHandler(void) {
@@ -160,7 +163,6 @@ uint8_t setPressureThreshold(uint8_t new_threshold) {
 }
 
 void rotateSteps(int steps) {
-    // Define the sequence of steps for the stepper motor
     if (valve_current_angle != valve_target_angle) {
         const char clockwise_sequence[4] = {0b0001, 0b0010, 0b0100, 0b1000};
         const char counter_clockwise_sequence[4] = {0b1000, 0b0100, 0b0010, 0b0001};
@@ -187,7 +189,6 @@ void rotateSteps(int steps) {
 
         valve_current_angle = valve_target_angle;
     }
-    
 }
 
 void rotateDegrees(float degrees) {
@@ -203,7 +204,7 @@ void main(void) {
 
     lcd_init();
 
-    INT0_SetInterruptHandler(INT_interruptHandler);
+    INT0_SetInterruptHandler(INT0_interruptHandler);
     TMR0_SetInterruptHandler(TMR0_interruptHandler);
     TMR1_SetInterruptHandler(TMR1_interruptHandler);
     TMR2_SetInterruptHandler(TMR2_interruptHandler);
@@ -232,8 +233,7 @@ void main(void) {
     while (1) {
         updatePressureFromADC();
 
-        // manageAlarmSystem();current_angle
-
+        // manageAlarmSystem();
 
         if (alarm_disabled) {
             turnOffAlarm();
