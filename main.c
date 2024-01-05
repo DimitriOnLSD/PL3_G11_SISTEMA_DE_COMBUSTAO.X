@@ -187,11 +187,11 @@ void rotateSteps(int steps) {
 
         valve_current_angle = valve_target_angle;
     }
-    
+
 }
 
 void rotateDegrees(float degrees) {
-    int steps = (int)((degrees / 360.0) * STEPS_PER_REV);
+    int steps = (int) ((degrees / 360.0) * STEPS_PER_REV);
     rotateSteps(steps);
 }
 
@@ -215,23 +215,23 @@ void main(void) {
 
     turnOffAlarm();
 
-    lcd_draw_string(82, 220, "ENGENHARIA ELETROTECNICA", FUCHSIA, BLACK);
-    snprintf(string, sizeof (string), "MICROPROCESSADORES");
-    lcd_draw_string(85, 190, string, LIME, BLACK);
-    snprintf(string, sizeof (string), "2023 / 24");
-    lcd_draw_string(120, 165, string, ILI9341_PINK, BLACK);
-    snprintf(string, sizeof (string), "Em construcao...");
-    lcd_draw_string(20, 140, string, RED, BLACK);
-    snprintf(string, sizeof (string), "yes");
-    lcd_draw_string(40, 120, string, RED, BLACK);
+    //Inofrmacao inicial que desaparece depois para aparecer as informacoes da pressao alarme etc...
+    lcd_draw_string(100, 210, "MINI-PROJETO", FUCHSIA, BLACK);
+    snprintf(string, sizeof (string), "SISTEMA DE CONTROLO DA PRESSAO");
+    lcd_draw_string(10, 170, string, RED, BLACK);
+    snprintf(string, sizeof (string), "DE UMA CAMARA DE COMBUSTAO");
+    lcd_draw_string(20, 150, string, RED, BLACK);
+//INSERIR FOTOS NOSSAS
+
     snprintf(string, sizeof (string), "Autores: Paulo Sousa");
-    lcd_draw_string(20, 95, string, YELLOW, BLACK);
-    snprintf(string, sizeof (string), "d");
-    lcd_draw_string(90, 75, string, YELLOW, BLACK);    
+    lcd_draw_string(20, 45, string, YELLOW, BLACK);
+    snprintf(string, sizeof (string), "Diogo Cravo");
+    lcd_draw_string(90, 25, string, YELLOW, BLACK);
 
     while (1) {
         updatePressureFromADC();
-
+        snprintf(string, sizeof (string), "Pressao: %2f ", pressure);
+        lcd_draw_string(20, 100, string, RED, BLACK);
         // manageAlarmSystem();current_angle
 
 
