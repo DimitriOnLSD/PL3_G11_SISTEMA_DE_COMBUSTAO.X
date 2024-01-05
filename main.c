@@ -2,6 +2,10 @@
 #include <string.h>
 #include "flag_clear.h"
 
+#define STEPS_PER_REV 360
+#define BUZZER_DC 100
+#define BUZZER_DURATION 1000
+#define TMR2_COUNTER 1000
 #define MAX_INPUT_LENGTH 10
 #define MAX_ADC_VALUE 1023.0
 #define MAX_VREF 5.0
@@ -21,12 +25,14 @@ bool user_override = false; // user can change valve opening manually if true
 char rx_data;
 uint8_t str[MAX_INPUT_LENGTH];
 uint8_t option;
-uint8_t valve;
-uint8_t min_pressure_threshold = 10;
-uint8_t max_pressure_threshold = 150;
-uint16_t count = 0;
-
-uint8_t k = 0;
+uint8_t min_pressure_threshold = 10; // Sets minimum pressure threshold for combustion chamber
+uint8_t max_pressure_threshold = 150; // Sets maximum pressure threshold for combustion chamber
+uint16_t valve_current_angle = 0; // Stores valve current opening angle
+uint16_t valve_target_angle = 0; // Sets target open angle for valve
+uint16_t previous_valve_angle = 0; // Stores last valve angle
+double previous_pressure = 0; // Stores previous pressure value
+uint8_t valve_user_input_angle = 0;
+uint16_t count = 0; // Stores timer 2 counter
 
 // 0.263658V -> 0kPa
 // 4.87084V -> 250kPa
@@ -42,7 +48,7 @@ void INT_interruptHandler(void) {
 }
 
 void TMR0_interruptHandler(void) {
-    LATAbits.LATA5 = !LATAbits.LATA5; // 250 ms OFF 250 ms ON -> 2 Hz
+    LED_LAT = !LED_LAT; // 250 ms OFF 250 ms ON -> 2 Hz
     TMR0_InterruptFlagClear(); // Clear the Timer0 interrupt flag
 }
 
@@ -53,9 +59,9 @@ void TMR1_interruptHandler(void) {
 
 void TMR2_interruptHandler(void) {
     count++; // 1ms
-    if (count >= 1000) { // 1000ms OFF 1000ms ON -> 0.5 Hz
-        EPWM1_LoadDutyValue(100);
-        if (count >= 2000) { // signal lasts for 1000 ms
+    if (count >= TMR2_COUNTER) { // 1000ms OFF 1000ms ON -> 0.5 Hz
+        EPWM1_LoadDutyValue(BUZZER_DC);
+        if (count >= (TMR2_COUNTER + BUZZER_DURATION)) { // signal lasts for 1000 ms
             count = 0;
         }
     } else {
@@ -70,11 +76,11 @@ void ADC_interruptHandler(void) {
 }
 
 void turnOffAlarm() {
-    LATAbits.LATA5 = 0;
+    LED_LAT = 0;
     EPWM1_LoadDutyValue(0);
     TMR0_StopTimer();
     TMR2_StopTimer();
-    count = 1000;
+    count = TMR2_COUNTER;
 }
 
 void triggerAlarm() {
@@ -87,20 +93,23 @@ bool pressureOutsideThreshold() {
 }
 
 void updatePressureFromADC() {
-    voltage = (double) adc_result * MAX_VREF / MAX_ADC_VALUE;
-    pressure = m * voltage + b;
+    if (update) {
+        voltage = (double) adc_result * MAX_VREF / MAX_ADC_VALUE;
+        pressure = m * voltage + b;
+        update = false;
+    }
 }
 
 void main_menu() {
     EUSART1_Write(12);
-    printf("\r\n-SISTEMA DE CONTROLO DA PRESSAO DE UMA CAMARA DE COMBUSTAO-\r\n");
+    printf("\r\n# SISTEMA DE CONTROLO DA PRESSAO DE UMA CAMARA DE COMBUSTAO #\r\n");
 
     printf("\r\n[1] - Controlo da pressao - Modo: %s", user_override ? "Manual" : "Automatico");
     printf("\r\n[2] - Definicao do grau de abertura da valvula");
     printf("\r\n[3] - Definicao dos limiares de alarme para a pressao (MIN/MAX)\r\n");
 
     printf("\r\nValor de pressao: %.2f kPa", pressure);
-    printf("\r\nAbertura da valvula: %d %%\r\n", valve);
+    printf("\r\nAbertura da valvula: %d %%\r\n", valve_current_angle);
 
     if (show_error) {
         printf("\r\nControlo da pressao tem de ser manual para definir um grau de abertura da valvula\r\n");
@@ -144,6 +153,42 @@ uint8_t setPressureThreshold(uint8_t new_threshold) {
     }
 }
 
+void rotateSteps(int steps) {
+    // Define the sequence of steps for the stepper motor
+    if (valve_current_angle != valve_target_angle) {
+        const char clockwise_sequence[4] = {0b0001, 0b0010, 0b0100, 0b1000};
+        const char counter_clockwise_sequence[4] = {0b1000, 0b0100, 0b0010, 0b0001};
+
+        int i;
+
+        if (valve_target_angle > valve_current_angle) {
+            for (i = 0; i < steps; i++) {
+                IN1_LAT = (clockwise_sequence[i % 4] & 0b0001) > 0 ? 1 : 0;
+                IN2_LAT = (clockwise_sequence[i % 4] & 0b0010) > 0 ? 1 : 0;
+                IN3_LAT = (clockwise_sequence[i % 4] & 0b0100) > 0 ? 1 : 0;
+                IN4_LAT = (clockwise_sequence[i % 4] & 0b1000) > 0 ? 1 : 0;
+                __delay_ms(5);
+            }
+        } else {
+            for (i = 0; i < steps; i++) {
+                IN1_LAT = (counter_clockwise_sequence[i % 4] & 0b0001) > 0 ? 1 : 0;
+                IN2_LAT = (counter_clockwise_sequence[i % 4] & 0b0010) > 0 ? 1 : 0;
+                IN3_LAT = (counter_clockwise_sequence[i % 4] & 0b0100) > 0 ? 1 : 0;
+                IN4_LAT = (counter_clockwise_sequence[i % 4] & 0b1000) > 0 ? 1 : 0;
+                __delay_ms(5);
+            }
+        }
+
+        valve_current_angle = valve_target_angle;
+    }
+    
+}
+
+void rotateDegrees(float degrees) {
+    int steps = (int)((degrees / 360.0) * STEPS_PER_REV);
+    rotateSteps(steps);
+}
+
 void main(void) {
     SYSTEM_Initialize();
     ADC_SelectChannel(MPX4250);
@@ -161,10 +206,10 @@ void main(void) {
     turnOffAlarm();
 
     while (1) {
-        if (update) {
-            updatePressureFromADC();
-            update = false;
-        }
+        updatePressureFromADC();
+
+        // manageAlarmSystem();current_angle
+
 
         if (alarm_disabled) {
             turnOffAlarm();
@@ -175,27 +220,39 @@ void main(void) {
                 turnOffAlarm();
         }
 
+        // handlePressureLevels();
+
         if (user_override) {
+            valve_target_angle = (float) valve_user_input_angle * 3.6;
         } else {
             if (pressure < 30) {
-            } else if (pressure >= 30 && pressure < 60) {
-            } else if (pressure >= 60 && pressure < 90) {
-            } else if (pressure >= 90 && pressure < 120) {
+                valve_target_angle = 0;
+            } else if (pressure < 60) {
+                valve_target_angle = 90;
+            } else if (pressure < 90) {
+                valve_target_angle = 180;
+            } else if (pressure < 120) {
+                valve_target_angle = 270;
             } else {
+                valve_target_angle = 360;
             }
+            rotateDegrees(abs(valve_current_angle - valve_target_angle));
         }
+
+        // handleEUSARTData();
 
         if (EUSART1_is_rx_ready() && !set_threshold) {
             rx_data = EUSART1_Read();
             EUSART1_Write(rx_data);
-            if ((rx_data >= '0' && rx_data <= '9') || rx_data == 13) // if [0:9] or ENTER
-            {
+            if ((rx_data >= '0' && rx_data <= '9') || rx_data == 13) {
                 new_data = true;
                 option = rx_data;
             }
         }
 
-        if (show_main_menu) {
+        if (show_main_menu || previous_pressure != pressure || previous_valve_angle != valve_current_angle) {
+            previous_pressure = pressure;
+            previous_valve_angle = valve_current_angle;
             main_menu();
             show_error = false;
             show_main_menu = false;

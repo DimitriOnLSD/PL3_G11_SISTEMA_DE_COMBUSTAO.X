@@ -3,7 +3,7 @@ Aquisição Sensorial
 + MPX4250 AN0
 
 Atuação da Válvula
-- Motor de passo
+! Motor de passo
 
 Sistema de Alarme
 + LED 2 Hz
