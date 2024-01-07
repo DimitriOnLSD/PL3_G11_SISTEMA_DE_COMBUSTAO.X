@@ -874,7 +874,15 @@ static int nout;
 static int pad(FILE *fp, char *buf, int p)
 {
     int i;
-# 205 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+
+
+
+    if (flags & (1 << 0)) {
+        fputs((const char *)buf, fp);
+    }
+
+
+
  if (p < 0) {
   p = 0;
  }
@@ -886,11 +894,11 @@ static int pad(FILE *fp, char *buf, int p)
 
 
 
-
+    if (!(flags & (1 << 0))) {
 
         fputs((const char *)buf, fp);
 
-
+    }
 
 
 
@@ -1179,7 +1187,7 @@ static int stoa(FILE *fp, char *s)
     char *cp;
     int l, p;
 
-
+ int w;
 
 
 
@@ -1198,12 +1206,35 @@ static int stoa(FILE *fp, char *s)
  }
 
     p = l;
-# 979 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+
+
+
+    w = width;
+    if (!(flags & (1 << 0))) {
+        while (l < w) {
+            fputc(' ', fp);
+            ++l;
+        }
+    }
+
+
+
     while (p--) {
         fputc(*cp, fp);
         ++cp;
     }
-# 995 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+
+
+
+    if (flags & (1 << 0)) {
+        while (l < w) {
+            fputc(' ', fp);
+            ++l;
+        }
+    }
+
+
+
     return l;
 
 }
@@ -1246,7 +1277,16 @@ vfpfcnvrt(FILE *fp, char *fmt[], va_list ap)
 
         flags = width = 0;
         prec = -1;
-# 1265 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+# 1256 "C:\\Program Files\\Microchip\\xc8\\v2.45\\pic\\sources\\c99\\common\\doprnt.c"
+  width = read_prec_or_width(fmt, ap);
+  if (width < 0) {
+   flags |= (1 << 0);
+   width = -width;
+  }
+
+
+
+
         if ((*fmt)[0] == '.') {
             ++*fmt;
    prec = read_prec_or_width(fmt, ap);

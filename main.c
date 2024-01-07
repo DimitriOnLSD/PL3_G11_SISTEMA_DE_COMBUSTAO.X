@@ -1,5 +1,6 @@
 #include "mcc_generated_files/mcc.h"
 #include <string.h>
+#include <ctype.h>
 #include "lib_ili9341.h"
 #include "xlcd.h"
 #include "main.h"
@@ -10,38 +11,29 @@
 #define TMR2_COUNTER 1000
 #define MIN_PRESSURE_THRESHOLD 10
 #define MAX_PRESSURE_THRESHOLD 150
-#define MAX_INPUT_LENGTH 10
+#define MAX_INPUT_LENGTH 4
 #define MAX_LCD_LENGTH 21
 #define MAX_TFT_LENGTH 50
 #define MAX_ADC_VALUE 1023.0
 #define MAX_VREF 5.0
 
-volatile adc_result_t adc_result;
-volatile bool update = false; // adc update flag
-volatile double voltage;
-volatile double pressure;
-
 bool new_data = false;
+bool can_exit_loop = false;
+bool user_input = false;
 bool show_main_menu = true;
 bool show_error = false;
 bool set_threshold = false;
 bool alarm_disabled = false; // disable the alarm
-bool user_override = false; // user can change valve opening manually if true
+bool user_override = false; // user can change stepper opening manually if true
 
 char rx_data;
 char string[MAX_TFT_LENGTH] = "";
 char mybuff1[MAX_LCD_LENGTH] = "MICROPROCESSADORES";
 char mybuff2[MAX_LCD_LENGTH] = "DEE-ESTG";
-uint8_t str[MAX_INPUT_LENGTH];
-uint8_t option;
-uint8_t min_pressure_threshold = 10; // Sets minimum pressure threshold for combustion chamber
-uint8_t max_pressure_threshold = 150; // Sets maximum pressure threshold for combustion chamber
-uint16_t valve_current_angle = 0; // Stores valve current opening angle
-uint16_t valve_target_angle = 0; // Sets target open angle for valve
-uint16_t previous_valve_angle = 0; // Stores last valve angle
-double previous_pressure = 0; // Stores previous pressure value
-uint8_t valve_user_input_angle = 0;
-uint16_t count = 0; // Stores timer 2 counter
+int option = 0;
+int option_2nd = 0;
+int type = 0;
+int count = 0; // Stores timer 2 counter
 
 // 0.263658V -> 0kPa
 // 4.87084V -> 250kPa
@@ -50,6 +42,27 @@ uint16_t count = 0; // Stores timer 2 counter
 // b=y2-m*x1 = 0 - 54.263105 * 0.263658 = -14.306901702602588740796434783779 ~= -14.306917
 const static double m = 54.263105;
 const static double b = -14.306917;
+
+struct sensor mpx4250 = {
+    .min_threshold = MIN_PRESSURE_THRESHOLD,
+    .max_threshold = MAX_PRESSURE_THRESHOLD,
+    .current_data = 0.0,
+    .previous_data = 0.0
+};
+
+struct valve stepper = {
+    .current_angle = 0.0,
+    .current_angle_percentage = 0.0,
+    .target_angle = 0.0,
+    .previous_angle = 0.0,
+    .user_input_angle = 0.0
+};
+
+struct data adc = {
+    .voltage = 0.0,
+    .result = 0.0,
+    .update = false
+};
 
 void INT0_interruptHandler(void) {
     alarm_disabled = !alarm_disabled;
@@ -80,8 +93,8 @@ void TMR2_interruptHandler(void) {
 }
 
 void ADC_interruptHandler(void) {
-    update = true;
-    adc_result = ADC_GetConversionResult();
+    adc.update = true;
+    adc.result = ADC_GetConversionResult();
 }
 
 void turnOffAlarm() {
@@ -90,22 +103,29 @@ void turnOffAlarm() {
     TMR0_StopTimer();
     TMR2_StopTimer();
     count = TMR2_COUNTER;
+    lcd_draw_string(20, 70, "                                                 ", RED, BLACK);
 }
 
 void triggerAlarm() {
+    if (mpx4250.current_data <= mpx4250.min_threshold) {
+        snprintf(string, sizeof (string), "ALARME! Pressao baixa!");
+    } else {
+        snprintf(string, sizeof (string), "ALARME! Pressao alta!");
+    }
+    lcd_draw_string(20, 70, string, RED, BLACK);
     TMR0_StartTimer();
     TMR2_StartTimer();
 }
 
 bool pressureOutsideThreshold() {
-    return (pressure <= min_pressure_threshold || pressure >= max_pressure_threshold);
+    return (mpx4250.current_data <= mpx4250.min_threshold || mpx4250.current_data >= mpx4250.max_threshold);
 }
 
 void updatePressureFromADC() {
-    if (update) {
-        voltage = (double) adc_result * MAX_VREF / MAX_ADC_VALUE;
-        pressure = m * voltage + b;
-        update = false;
+    if (adc.update) {
+        adc.voltage = (double) adc.result * MAX_VREF / MAX_ADC_VALUE;
+        mpx4250.current_data = m * adc.voltage + b;
+        adc.update = false;
     }
 }
 
@@ -117,8 +137,8 @@ void main_menu() {
     printf("\r\n[2] - Definicao do grau de abertura da valvula");
     printf("\r\n[3] - Definicao dos limiares de alarme para a pressao (MIN/MAX)\r\n");
 
-    printf("\r\nValor de pressao: %.2f kPa", pressure);
-    printf("\r\nAbertura da valvula: %d %%\r\n", valve_current_angle);
+    printf("\r\nValor de pressao: %.2f kPa", mpx4250.current_data);
+    printf("\r\nAbertura da valvula: %d %%\r\n", stepper.current_angle_percentage);
 
     if (show_error) {
         printf("\r\nControlo da pressao tem de ser manual para definir um grau de abertura da valvula\r\n");
@@ -139,13 +159,16 @@ void valve_control_menu() {
     printf("\r\nOpcao: ");
 }
 
-uint8_t setPressureThreshold(uint8_t new_threshold) {
+int setPressureThreshold(int original_threshold) {
     uint8_t i = 0;
+    char str[MAX_INPUT_LENGTH] = {0}; // Initialize the string buffer
     bool set_threshold = true;
+
     while (set_threshold) {
         if (EUSART1_is_rx_ready()) {
-            rx_data = EUSART1_Read();
-            if (rx_data >= '0' && rx_data <= '9' && i < MAX_INPUT_LENGTH - 1) {
+            char rx_data = EUSART1_Read();
+
+            if (isdigit(rx_data) && i < MAX_INPUT_LENGTH - 1) {
                 str[i++] = rx_data;
                 EUSART1_Write(rx_data);
             } else if (rx_data == 8 && i > 0) { // Backspace
@@ -156,53 +179,38 @@ uint8_t setPressureThreshold(uint8_t new_threshold) {
             } else if (rx_data == 13) { // Enter
                 set_threshold = false;
                 str[i] = '\0';
-                return new_threshold = atoi(str);
+                return atoi(str);
             }
         }
     }
+
+    return original_threshold; // Return the original threshold if not updated
 }
 
 void rotateSteps(int steps) {
-    if (valve_current_angle != valve_target_angle) {
-        const char clockwise_sequence[4] = {0b0001, 0b0010, 0b0100, 0b1000};
-        const char counter_clockwise_sequence[4] = {0b1000, 0b0100, 0b0010, 0b0001};
+    const char sequence[4] = {0b0001, 0b0010, 0b0100, 0b1000};
 
-        int i;
-
-        if (valve_target_angle > valve_current_angle) {
-            for (i = 0; i < steps; i++) {
-                IN1_LAT = (clockwise_sequence[i % 4] & 0b0001) > 0 ? 1 : 0;
-                IN2_LAT = (clockwise_sequence[i % 4] & 0b0010) > 0 ? 1 : 0;
-                IN3_LAT = (clockwise_sequence[i % 4] & 0b0100) > 0 ? 1 : 0;
-                IN4_LAT = (clockwise_sequence[i % 4] & 0b1000) > 0 ? 1 : 0;
-                __delay_ms(5);
-            }
-        } else {
-            for (i = 0; i < steps; i++) {
-                IN1_LAT = (counter_clockwise_sequence[i % 4] & 0b0001) > 0 ? 1 : 0;
-                IN2_LAT = (counter_clockwise_sequence[i % 4] & 0b0010) > 0 ? 1 : 0;
-                IN3_LAT = (counter_clockwise_sequence[i % 4] & 0b0100) > 0 ? 1 : 0;
-                IN4_LAT = (counter_clockwise_sequence[i % 4] & 0b1000) > 0 ? 1 : 0;
-                __delay_ms(5);
-            }
-        }
-
-        valve_current_angle = valve_target_angle;
+    for (int i = 0; i < steps; i++) {
+        IN1_LAT = (sequence[i % 4] & 0b0001) > 0 ? 1 : 0;
+        IN2_LAT = (sequence[i % 4] & 0b0010) > 0 ? 1 : 0;
+        IN3_LAT = (sequence[i % 4] & 0b0100) > 0 ? 1 : 0;
+        IN4_LAT = (sequence[i % 4] & 0b1000) > 0 ? 1 : 0;
+        // __delay_ms(5);
     }
 }
 
-void rotateDegrees(float degrees) {
-    int steps = (int)((degrees / 360.0) * STEPS_PER_REV);
-    rotateSteps(steps);
+int readInput() {
+    rx_data = EUSART1_Read();
+    if (isdigit(rx_data)) {
+        EUSART1_Write(rx_data);
+        new_data = true;
+        return rx_data;
+    }
 }
 
 void main(void) {
     SYSTEM_Initialize();
-    ADC_SelectChannel(MPX4250);
-
-    SPI2_Open(SPI2_DEFAULT);
-
-    lcd_init();
+    ADC_SelectChannel(MPX4250_AN);
 
     INT0_SetInterruptHandler(INT0_interruptHandler);
     TMR0_SetInterruptHandler(TMR0_interruptHandler);
@@ -214,69 +222,81 @@ void main(void) {
     INTERRUPT_GlobalInterruptLowEnable();
     INTERRUPT_PeripheralInterruptEnable();
 
-    turnOffAlarm();
+    SPI2_Open(SPI2_DEFAULT);
 
-    lcd_draw_string(82, 220, "ENGENHARIA ELETROTECNICA", FUCHSIA, BLACK);
-    snprintf(string, sizeof (string), "MICROPROCESSADORES");
-    lcd_draw_string(85, 190, string, LIME, BLACK);
-    snprintf(string, sizeof (string), "2023 / 24");
-    lcd_draw_string(120, 165, string, ILI9341_PINK, BLACK);
-    snprintf(string, sizeof (string), "Em construcao...");
-    lcd_draw_string(20, 140, string, RED, BLACK);
-    snprintf(string, sizeof (string), "yes");
-    lcd_draw_string(40, 120, string, RED, BLACK);
+    lcd_init();
+
+    // Inofrmacao inicial que desaparece depois para aparecer as informacoes da pressao alarme etc...
+    lcd_draw_string(100, 210, "MINI-PROJETO", FUCHSIA, BLACK);
+    snprintf(string, sizeof (string), "SISTEMA DE CONTROLO DA PRESSAO");
+    lcd_draw_string(10, 170, string, RED, BLACK);
+    snprintf(string, sizeof (string), "DE UMA CAMARA DE COMBUSTAO");
+    lcd_draw_string(20, 150, string, RED, BLACK);
+    // INSERIR FOTOS NOSSAS
     snprintf(string, sizeof (string), "Autores: Paulo Sousa");
-    lcd_draw_string(20, 95, string, YELLOW, BLACK);
-    snprintf(string, sizeof (string), "d");
-    lcd_draw_string(90, 75, string, YELLOW, BLACK);    
+    lcd_draw_string(20, 45, string, YELLOW, BLACK);
+    snprintf(string, sizeof (string), "Diogo Cravo");
+    lcd_draw_string(90, 25, string, YELLOW, BLACK);
+
+    turnOffAlarm();
 
     while (1) {
         updatePressureFromADC();
 
-        // manageAlarmSystem();
-
         if (alarm_disabled) {
             turnOffAlarm();
         } else {
-            if (pressureOutsideThreshold())
+            if (pressureOutsideThreshold()) {
                 triggerAlarm();
-            else
+            } else {
                 turnOffAlarm();
+            }
         }
-
-        // handlePressureLevels();
 
         if (user_override) {
-            valve_target_angle = (float) valve_user_input_angle * 3.6;
-        } else {
-            if (pressure < 30) {
-                valve_target_angle = 0;
-            } else if (pressure < 60) {
-                valve_target_angle = 90;
-            } else if (pressure < 90) {
-                valve_target_angle = 180;
-            } else if (pressure < 120) {
-                valve_target_angle = 270;
-            } else {
-                valve_target_angle = 360;
+            if (user_input) {
+                rotateSteps(stepper.user_input_angle);
+                user_input = false;
             }
-            rotateDegrees(abs(valve_current_angle - valve_target_angle));
+        } else {
+            if (mpx4250.current_data < 30) {
+                type = 3;
+                stepper.current_angle = 0;
+                stepper.current_angle_percentage = 0;
+            } else if (mpx4250.current_data < 60) {
+                type = 2;
+                stepper.current_angle = 90;
+                stepper.current_angle_percentage = 25;
+            } else if (mpx4250.current_data < 90) {
+                type = 4;
+                stepper.current_angle = 180;
+                stepper.current_angle_percentage = 50;
+            } else if (mpx4250.current_data < 120) {
+                type = 1;
+                stepper.current_angle = 270;
+                stepper.current_angle_percentage = 75;
+            } else {
+                type = 3;
+                stepper.current_angle = 360;
+                stepper.current_angle_percentage = 100;
+            }
+            if (stepper.previous_angle != stepper.current_angle) {
+                rotateSteps(type);
+            }
+            stepper.previous_angle = stepper.current_angle;
         }
-
-        // handleEUSARTData();
 
         if (EUSART1_is_rx_ready() && !set_threshold) {
-            rx_data = EUSART1_Read();
-            EUSART1_Write(rx_data);
-            if ((rx_data >= '0' && rx_data <= '9') || rx_data == 13) {
-                new_data = true;
-                option = rx_data;
-            }
+            option = readInput();
         }
 
-        if (show_main_menu || previous_pressure != pressure || previous_valve_angle != valve_current_angle) {
-            previous_pressure = pressure;
-            previous_valve_angle = valve_current_angle;
+        if (show_main_menu || mpx4250.previous_data != mpx4250.current_data || stepper.previous_angle != stepper.current_angle) {
+            mpx4250.previous_data = mpx4250.current_data;
+            stepper.previous_angle = stepper.current_angle;
+            snprintf(string, sizeof (string), "Pressao: %2f", mpx4250.current_data);
+            lcd_draw_string(20, 110, string, RED, BLACK);
+            snprintf(string, sizeof (string), "Valvula: %d graus | %d%%", stepper.current_angle, stepper.current_angle_percentage);
+            lcd_draw_string(20, 90, string, RED, BLACK);
             main_menu();
             show_error = false;
             show_main_menu = false;
@@ -284,31 +304,77 @@ void main(void) {
 
         if (new_data) {
             switch (option) {
-                case 0:
+                default:
                     break;
                 case '1':
                     user_override = !user_override;
-                    show_main_menu = true;
+                    user_input = true;
                     break;
                 case '2':
                     if (!user_override) {
                         show_error = true;
-                        show_main_menu = true;
                     } else {
                         valve_control_menu();
+
+                        can_exit_loop = false;
+
+                        do {
+                            if (EUSART1_is_rx_ready()) {
+                                option_2nd = readInput();
+                            }
+
+                            if (option_2nd >= '0' && option_2nd <= '5') {
+                                user_input = true;
+                                can_exit_loop = true;
+
+                                switch (option_2nd) {
+                                    case '0':
+                                        user_override = !user_override;
+                                        user_input = false;
+                                        break;
+                                    case '1':
+                                        stepper.user_input_angle = 3;
+                                        stepper.current_angle = 0;
+                                        stepper.current_angle_percentage = 0;
+                                        break;
+                                    case '2':
+                                        stepper.user_input_angle = 2;
+                                        stepper.current_angle = 90;
+                                        stepper.current_angle_percentage = 25;
+                                        break;
+                                    case '3':
+                                        stepper.user_input_angle = 4;
+                                        stepper.current_angle = 180;
+                                        stepper.current_angle_percentage = 50;
+                                        break;
+                                    case '4':
+                                        stepper.user_input_angle = 1;
+                                        stepper.current_angle = 270;
+                                        stepper.current_angle_percentage = 75;
+                                        break;
+                                    case '5':
+                                        stepper.user_input_angle = 3;
+                                        stepper.current_angle = 360;
+                                        stepper.current_angle_percentage = 100;
+                                        break;
+                                }
+                            }
+                        } while (!can_exit_loop);
                     }
                     break;
                 case '3':
                     EUSART1_Write(12);
-                    printf("\r\nValor minimo atual: %d kPa\t Valor maximo atual: %d kPa\n", min_pressure_threshold, max_pressure_threshold);
+                    printf("\r\nValor minimo atual: %d kPa\t Valor maximo atual: %d kPa\n", mpx4250.min_threshold, mpx4250.max_threshold);
                     printf("\r\nNovo valor minimo: ");
-                    min_pressure_threshold = setPressureThreshold(min_pressure_threshold);
+                    mpx4250.min_threshold = setPressureThreshold(mpx4250.min_threshold);
                     printf("\r\nNovo valor maximo: ");
-                    max_pressure_threshold = setPressureThreshold(max_pressure_threshold);
-                    show_main_menu = true;
+                    mpx4250.max_threshold = setPressureThreshold(mpx4250.max_threshold);
                     break;
             }
+            show_main_menu = true;
             new_data = false;
+            option = 0;
+            option_2nd = 0;
         }
     }
 }

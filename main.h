@@ -3,27 +3,41 @@
 
 /* VARIABLES */
 
-// struct valve
-// {
-//     uint16_t current_angle = 0;  // Stores valve current opening angle
-//     uint16_t target_angle = 0;   // Sets target open angle for valve
-//     uint16_t previous_angle = 0; // Stores last valve angle
-//     uint16_t user_input_angle = 0;
-// };
-// struct pressure
-// {
-//     uint8_t min_pressure_threshold = MIN_PRESSURE_THRESHOLD; // Sets minimum pressure threshold for combustion chamber
-//     uint8_t max_pressure_threshold = MAX_PRESSURE_THRESHOLD; // Sets maximum pressure threshold for combustion chamber
-//     volatile double current_data;
-//     double previous_data;
-// };
-// struct data
-// {
-//     const static double m = 54.263105;
-//     const static double b = -14.306917;
-//     volatile double voltage;
-// };
+/**
+ * @struct valve
+ * @brief Structure to manage valve parameters.
+ */
+struct valve
+{
+    int current_angle;    /**< Stores valve current opening angle */
+    int current_angle_percentage;    /**< Stores valve current opening angle in percentage */
+    int target_angle;     /**< Sets target open angle for valve */
+    int previous_angle;   /**< Stores last valve angle */
+    int user_input_angle; /**< User-defined input angle */
+};
 
+/**
+ * @struct sensor
+ * @brief Structure to manage sensor thresholds and data.
+ */
+struct sensor
+{
+    int min_threshold;            /**< Sets minimum pressure threshold for combustion chamber */
+    int max_threshold;            /**< Sets maximum pressure threshold for combustion chamber */
+    volatile double current_data; /**< Current sensor data */
+    double previous_data;         /**< Previous sensor data */
+};
+
+/**
+ * @struct data
+ * @brief Structure to manage general data and ADC updates.
+ */
+struct data
+{
+    volatile double voltage;      /**< Voltage data */
+    volatile adc_result_t result; /**< ADC result */
+    volatile bool update;         /**< Flag indicating ADC update */
+};
 /* FLAG CLEAR */
 
 #define TMR0_InterruptFlagClear() (INTCONbits.TMR0IF = 0) // Clears Timer 0 interrupt flag
@@ -142,23 +156,27 @@ void TMR2_interruptHandler(void);
 void ADC_interruptHandler(void);
 
 /* ALARM HANDLER */
+
 void turnOffAlarm();
 void triggerAlarm();
 
 /* PRESSURE HANDLERS */
+
 bool pressureOutsideThreshold();
 void updatePressureFromADC();
-uint8_t setPressureThreshold(uint8_t new_threshold);
+int setPressureThreshold(int new_threshold);
 
 /* MENU HANDLERS */
+
 void main_menu();
 void valve_control_menu();
 
 /* STEPPER MOTOR HANDLERS */
+
 void rotateSteps(int steps);
-void rotateDegrees(float degrees);
 
 /* MAIN */
+
 void main(void);
 
 #endif

@@ -94,7 +94,7 @@ typedef struct
 
 typedef enum
 {
-    MPX4250 =  0x0,
+    MPX4250_AN =  0x0,
     channel_CTMU =  0x1D,
     channel_DAC =  0x1E,
     channel_FVRBuf2 =  0x1F

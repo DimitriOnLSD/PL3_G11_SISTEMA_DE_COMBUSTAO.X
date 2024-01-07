@@ -65,19 +65,19 @@
 #define PULL_UP_ENABLED      1
 #define PULL_UP_DISABLED     0
 
-// get/set MPX4250 aliases
-#define MPX4250_TRIS                 TRISAbits.TRISA0
-#define MPX4250_LAT                  LATAbits.LATA0
-#define MPX4250_PORT                 PORTAbits.RA0
-#define MPX4250_ANS                  ANSELAbits.ANSA0
-#define MPX4250_SetHigh()            do { LATAbits.LATA0 = 1; } while(0)
-#define MPX4250_SetLow()             do { LATAbits.LATA0 = 0; } while(0)
-#define MPX4250_Toggle()             do { LATAbits.LATA0 = ~LATAbits.LATA0; } while(0)
-#define MPX4250_GetValue()           PORTAbits.RA0
-#define MPX4250_SetDigitalInput()    do { TRISAbits.TRISA0 = 1; } while(0)
-#define MPX4250_SetDigitalOutput()   do { TRISAbits.TRISA0 = 0; } while(0)
-#define MPX4250_SetAnalogMode()      do { ANSELAbits.ANSA0 = 1; } while(0)
-#define MPX4250_SetDigitalMode()     do { ANSELAbits.ANSA0 = 0; } while(0)
+// get/set MPX4250_AN aliases
+#define MPX4250_AN_TRIS                 TRISAbits.TRISA0
+#define MPX4250_AN_LAT                  LATAbits.LATA0
+#define MPX4250_AN_PORT                 PORTAbits.RA0
+#define MPX4250_AN_ANS                  ANSELAbits.ANSA0
+#define MPX4250_AN_SetHigh()            do { LATAbits.LATA0 = 1; } while(0)
+#define MPX4250_AN_SetLow()             do { LATAbits.LATA0 = 0; } while(0)
+#define MPX4250_AN_Toggle()             do { LATAbits.LATA0 = ~LATAbits.LATA0; } while(0)
+#define MPX4250_AN_GetValue()           PORTAbits.RA0
+#define MPX4250_AN_SetDigitalInput()    do { TRISAbits.TRISA0 = 1; } while(0)
+#define MPX4250_AN_SetDigitalOutput()   do { TRISAbits.TRISA0 = 0; } while(0)
+#define MPX4250_AN_SetAnalogMode()      do { ANSELAbits.ANSA0 = 1; } while(0)
+#define MPX4250_AN_SetDigitalMode()     do { ANSELAbits.ANSA0 = 0; } while(0)
 
 // get/set LED aliases
 #define LED_TRIS                 TRISAbits.TRISA5
